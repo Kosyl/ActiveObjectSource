@@ -50,7 +50,8 @@ int main(int argc, char* argv[])
 
 	}progressCmd;
 
-	
+	//testowa zmiana zeby zobaczyc czy git wylapie
+
 	boost::shared_ptr<Future<int>> res1 = proxy.quickSchedule<int>(boost::bind(fun1,4,12));
 	boost::shared_ptr<Future<double>> res2 = proxy.quickSchedule<double>(boost::bind(fun2,4.34,1.12));
 
