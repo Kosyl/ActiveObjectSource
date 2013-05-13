@@ -4,3 +4,6 @@ Projekt ma na celu utworzenie biblioteki pozwalającej na zdalne wywoływanie er
 
 ==================
 Możemy tego użyć jako jakiegos "todo list" moze? Tylko nie ma polfontow :(
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Udało Ci się, awesome. Jutro z samego rana zrobię lekkie dostosowanie moich .h do Twoich i wrzucam.
