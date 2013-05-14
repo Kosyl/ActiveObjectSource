@@ -30,7 +30,7 @@ public:
 	void setProgress(const double& progress)
 	{
 		log << "Set progress: " << progress << endl;
-		future_->setPorgress(progress);
+		future_->setProgress(progress);  //literowka :P
 	}
 
 	void setValue(const T& val)
