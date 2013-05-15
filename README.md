@@ -31,7 +31,7 @@ class Command: public Funktor
 		{
 			prom.setProgress(p);
 		}
-};
+}
 
 class Kalkulator: public Proxy
 {
