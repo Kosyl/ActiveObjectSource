@@ -11,7 +11,7 @@ Udało Ci się, awesome. Jutro z samego rana zrobię lekkie dostosowanie moich .
 ==================
 class Funktor
 {
-  public:
+  	public:
 		virtual void execute()=0;
 }
 
