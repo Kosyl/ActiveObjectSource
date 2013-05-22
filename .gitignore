@@ -66,7 +66,7 @@ local.properties
 ##Marta
 *.sln
 *.vcxproj
-* ActiveObjectSource\ActiveObjectSource.vcx.proj.filters
+* ActiveObjectSource/ActiveObjectSource.vcx.proj.filters
 
 ## TODO: If you have NuGet Package Restore enabled, uncomment this
 #packages/
