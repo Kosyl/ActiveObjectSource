@@ -28,8 +28,13 @@ public:
 
 	void setProgress(const double& progress)
 	{
+<<<<<<< HEAD
 		log_ << "setProgress (" << progress << ")" << endl;
 		pFutureContent_->setProgress(progress);
+=======
+		log << "Set progress: " << progress << endl;
+		future_->setProgress(progress);  //literowka :P
+>>>>>>> 054c11be264a0b2327a58fdf80e4896358b51bda
 	}
 
 	template<typename T>
