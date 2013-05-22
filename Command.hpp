@@ -45,17 +45,17 @@ protected:
 
 class NullCommandException: public exception{};
 
-class Funktor
+class Functor
 {
 public:
-	Funktor(){}
+	Functor(){}
 
 	virtual void execute()=0;
 };
 
 
 template<typename T>
-class MethodRequest:public Funktor
+class MethodRequest:public Functor
 {
 private:
 	boost::function<T()> command_;

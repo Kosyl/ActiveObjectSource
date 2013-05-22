@@ -28,9 +28,31 @@ public:
 	template<typename T>
 	void write(T s)
 	{
+
+		if(printDetails_)
+		{
+			printDetails_=false;
+
+			const ptime now = microsec_clock::universal_time();
+			const time_duration td = now.time_of_day();
+			const long hours        = td.hours();
+			const long minutes      = td.minutes();
+			const long seconds      = td.seconds();
+			const long milliseconds = (const long)(td.total_milliseconds() -	((hours * 3600 + minutes * 60 + seconds) * 1000));
+
+			cout << hours+2 << ":" << minutes << ":" << seconds << "." << milliseconds << " " << setw(10) << modul_ << ": ";
+		}
+
 		cout << s;
 	}
 
+	template<>
+	void write(const char* s)
+	{
+		string str(s);
+		write(str);
+	}
+	template<>
 	void write(string s)
 	{
 		if(s=="\n" || s.find("\n")!=string::npos)
@@ -50,13 +72,12 @@ public:
 				const long hours        = td.hours();
 				const long minutes      = td.minutes();
 				const long seconds      = td.seconds();
-				const long milliseconds = td.total_milliseconds() -	((hours * 3600 + minutes * 60 + seconds) * 1000);
+				const long milliseconds = (const long)(td.total_milliseconds() -	((hours * 3600 + minutes * 60 + seconds) * 1000));
 
-				cout << hours << ":" << minutes << ":" << seconds << "." << milliseconds << " " << modul_ << "\t: ";
+				cout << hours+2 << ":" << minutes << ":" << seconds << "." << milliseconds << " " << setw(10) << modul_ << ": ";
 			}
 			cout << s;
 		}
-
 	}
 };
 
@@ -69,7 +90,7 @@ Logger& operator<<(Logger& o, T const& t)
 
 Logger& operator<<(Logger& o, std::ostream& (*f)(std::ostream&))
 {
-	o.write(f);
+	o.write("\n");
 	return o;
 }
 

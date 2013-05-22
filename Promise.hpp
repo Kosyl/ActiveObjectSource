@@ -5,44 +5,51 @@
 #include <boost\shared_ptr.hpp>
 #include "SimpleLog.hpp"
 
-template<typename T>
 class Promise
 {
-	typedef boost::shared_ptr<Future<T>> PFuture;
-	
 private:
-	Logger log;
-	PFuture future_;
+	Logger log_;
+	boost::shared_ptr<FutureContent> pFutureContent_;
 
 public:
 	Promise():
-		log("PROMISE"),
-		future_(new Future<T>())
-	{}
-
-	PFuture getFuture()
+		log_("PROMISE"),
+		pFutureContent_(new FutureContent())
 	{
-		log << "Get Future" << "\n";
-		PFuture res = future_;
+		log_ << "constructor" << endl;
+	}
+
+	Future getFuture()
+	{
+		log_ << "getFuture" << endl;
+		Future res(pFutureContent_);
 		return res;
 	}
 
 	void setProgress(const double& progress)
 	{
-		log << "Set progress: " << progress << endl;
-		future_->setPorgress(progress);
+		log_ << "setProgress (" << progress << ")" << endl;
+		pFutureContent_->setProgress(progress);
 	}
 
+	template<typename T>
 	void setValue(const T& val)
 	{
-		log << "SetValue: " << val << endl;
-		future_->setValue(val);
+		log_ << "setValue (" << val << ")" << endl;
+		pFutureContent_->setValue(val);
 	}
 
-	bool isHalt()
+	bool isCancelled()
 	{
-		return future_->isHalt();
+		log_ << "iscancelled (" << pFutureContent_->isCancelled() << ")" << endl;
+		return pFutureContent_->isCancelled();
 	}
+
+	~Promise()
+	{
+		log_ << "~Promise()" << endl;
+	}
+
 };
 
 #endif
