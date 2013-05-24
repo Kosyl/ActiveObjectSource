@@ -11,8 +11,6 @@
 
 using namespace std;
 
-//zapowiedzi
-
 enum FutureState {QUEUED, CANCELLED, INPROGRESS, EXCEPTION, DONE};
 
 class RequestCancelledException: public exception
@@ -180,12 +178,20 @@ public:
 		log_ << "constructor" << endl;
 	}
 
+	Future(Future& rhs):
+		pFutureContent_(rhs.pFutureContent_),
+		log_("FUTURE")
+	{
+		log_ << "c constructor" << endl;
+		setFunction(rhs.progressCallback_);
+	}
+
 	template<typename FuncType>
 	void setFunction(FuncType fun)
 	{
 		log_ << "setFunction" << endl;
 		progressCallback_=fun;
-		pFutureContent_->attachProgressObserver(progressCallback_);
+		if(progressCallback_)pFutureContent_->attachProgressObserver(progressCallback_);
 	}
 
 	//czemu zakomentowane linie nie dzialaja?

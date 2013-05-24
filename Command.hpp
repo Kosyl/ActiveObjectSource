@@ -6,43 +6,6 @@
 
 using namespace std;
 
-class Proxy;
-
-template<typename T>
-class Command
-{
-	friend class Proxy;
-	boost::function<T()> cmd_;
-
-private:
-	Promise<T>* promise_;
-
-	void setPromise(Promise<T>* promise)
-	{
-		promise_=promise;
-	}
-
-public:
-	Command():
-		promise_()
-	{};
-
-	virtual void execute()=0;
-
-protected:
-	void setProgress(double progress)
-	{
-		cout << "COMMAND: SetProgress : " << progress << endl;
-		promise_->setProgress(progress);
-	}
-
-	void setException(string e)
-	{
-		cout << "COMMAND: Exception : " << e << endl;
-		promise_->
-	}
-};
-
 class NullCommandException: public exception{};
 
 class Functor

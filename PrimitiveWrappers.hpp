@@ -9,21 +9,24 @@ class Int
 {
 private:
 	int val_;
-	Logger log;
+	Logger log_;
 public:
 	Int():
+		log_("INT"),
 		val_(0)
 	{}
 
 	Int(int i):
+		log_("INT"),
 		val_(i)
 	{}
 
 	Int(const int& i):
+		log_("INT"),
 		val_(i)
 	{}
 
-	Int operator
+
 };
 
 #endif
