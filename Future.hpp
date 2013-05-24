@@ -199,6 +199,7 @@ public:
 	T getValue()
 	{
 		//if(!pFutureContent_)throw RequestCancelledException;
+		if(!pFutureContent_)throw RequestCancelledException(); //Marta: mam wrazenie, ze to, o dziwo, wola konstruktor
 		log_ << "getValue (" << (boost::any_cast<T>(pFutureContent_->getValue())) << ")" << endl;
 		return boost::any_cast<T>(pFutureContent_->getValue());
 	}
@@ -207,6 +208,7 @@ public:
 	{
 		log_ << "getProgress (" << pFutureContent_->getProgress() << ")" << endl;
 		//if(!pFutureContent_)throw RequestCancelledException;
+		if(!pFutureContent_)throw RequestCancelledException();
 		return pFutureContent_->getProgress();
 	}
 
@@ -214,6 +216,7 @@ public:
 	{
 		log_ << "getException (" << (pFutureContent_->getException().what()) << ")" << endl;
 		//if(!pFutureContent_)throw RequestCancelledException;
+		if(!pFutureContent_)throw RequestCancelledException();
 		return pFutureContent_->getException();
 	}
 
@@ -221,6 +224,7 @@ public:
 	{
 		log_ << "hasException (" << pFutureContent_->hasException() << ")" << endl;
 		//if(!pFutureContent_)throw RequestCancelledException;
+		if(!pFutureContent_)throw RequestCancelledException();
 		return pFutureContent_->hasException();
 	}
 
@@ -228,6 +232,7 @@ public:
 	{
 		log_ << "isDone (" << pFutureContent_->isDone() << ")" << endl;
 		//if(!pFutureContent_)throw RequestCancelledException;
+		if(!pFutureContent_)throw RequestCancelledException();
 		return pFutureContent_->isDone();
 	}
 
