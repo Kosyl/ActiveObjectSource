@@ -19,7 +19,6 @@ public:
 	RequestCancelledException(){}
 };
 
-
 class FutureContent: public boost::noncopyable
 {
 public:
@@ -162,11 +161,12 @@ private:
 	Logger log_;
 };
 
+template<typename T>
 class Future
 {
 private:
 	boost::shared_ptr<FutureContent> pFutureContent_;
-	boost::function<void(double)> progressCallback_;
+	boost::function<void(double)> progressSlot_;
 	boost::signals::connection progressConnection_;
 	Logger log_;
 
@@ -178,61 +178,56 @@ public:
 		log_ << "constructor" << endl;
 	}
 
+	//todo: konwersja miedzy future
+
 	Future(Future& rhs):
 		pFutureContent_(rhs.pFutureContent_),
 		log_("FUTURE")
 	{
 		log_ << "c constructor" << endl;
-		setFunction(rhs.progressCallback_);
+		setFunction(rhs.progressSlot_);
 	}
 
 	template<typename FuncType>
 	void setFunction(FuncType fun)
 	{
 		log_ << "setFunction" << endl;
-		progressCallback_=fun;
-		if(progressCallback_)pFutureContent_->attachProgressObserver(progressCallback_);
+		progressSlot_=fun;
+		if(progressSlot_)pFutureContent_->attachProgressObserver(progressSlot_);
 	}
 
-	//czemu zakomentowane linie nie dzialaja?
-	template<typename T>
 	T getValue()
 	{
-		//if(!pFutureContent_)throw RequestCancelledException;
-		if(!pFutureContent_)throw RequestCancelledException(); //Marta: mam wrazenie, ze to, o dziwo, wola konstruktor
+		if(!pFutureContent_)throw RequestCancelledException();
 		log_ << "getValue (" << (boost::any_cast<T>(pFutureContent_->getValue())) << ")" << endl;
 		return boost::any_cast<T>(pFutureContent_->getValue());
 	}
 
 	double getProgress()
 	{
-		log_ << "getProgress (" << pFutureContent_->getProgress() << ")" << endl;
-		//if(!pFutureContent_)throw RequestCancelledException;
 		if(!pFutureContent_)throw RequestCancelledException();
+		log_ << "getProgress (" << pFutureContent_->getProgress() << ")" << endl;
 		return pFutureContent_->getProgress();
 	}
 
 	exception getException()
 	{
-		log_ << "getException (" << (pFutureContent_->getException().what()) << ")" << endl;
-		//if(!pFutureContent_)throw RequestCancelledException;
 		if(!pFutureContent_)throw RequestCancelledException();
+		log_ << "getException (" << (pFutureContent_->getException().what()) << ")" << endl;
 		return pFutureContent_->getException();
 	}
 
 	bool hasException()
 	{
-		log_ << "hasException (" << pFutureContent_->hasException() << ")" << endl;
-		//if(!pFutureContent_)throw RequestCancelledException;
 		if(!pFutureContent_)throw RequestCancelledException();
+		log_ << "hasException (" << pFutureContent_->hasException() << ")" << endl;
 		return pFutureContent_->hasException();
 	}
 
 	bool isDone()
 	{
-		log_ << "isDone (" << pFutureContent_->isDone() << ")" << endl;
-		//if(!pFutureContent_)throw RequestCancelledException;
 		if(!pFutureContent_)throw RequestCancelledException();
+		log_ << "isDone (" << pFutureContent_->isDone() << ")" << endl;
 		return pFutureContent_->isDone();
 	}
 

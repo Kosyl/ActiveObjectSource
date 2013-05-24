@@ -34,6 +34,11 @@ public:
 	}
 };
 
+void callback(double progress)
+{
+	cout << "CALLBACK: " << progress << endl;
+}
+
 void testFuture()
 {
 	Logger log("MAIN");
@@ -41,7 +46,8 @@ void testFuture()
 	log << "Promise creation" << endl;
 	Promise promise;
 	log << "Future creation" << endl;
-	Future future = promise.getFuture();
+	Future<int> future = promise.getFuture<int>();
+	future.setFunction(boost::bind(callback,_1));
 	log << "Check" << endl;
 	log << "HasException: " << future.hasException() << endl;
 	if(future.hasException())log << "Exception: " << future.getException().what() << endl;
@@ -55,13 +61,15 @@ void testFuture()
 	log << "Progress: " << future.getProgress() << endl;
 	log << "IsDone: " << future.isDone() << endl;
 	log << "Set value" << endl;
+	promise.setProgress(0.65);
+	promise.setProgress(0.89);
 	promise.setValue<int>(56);
 	log << "Third check" << endl;
 	log << "HasException: " << future.hasException() << endl;
 	if(future.hasException())log << "Exception: " << future.getException().what() << endl;
 	log << "Progress: " << future.getProgress() << endl;
 	log << "IsDone: " << future.isDone() << endl;
-	log << "getValue: " << future.getValue<int>() << endl;
+	log << "getValue: " << future.getValue() << endl;
 }
 
 int main(int argc, char* argv[])

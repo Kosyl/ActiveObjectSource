@@ -19,10 +19,11 @@ public:
 		log_ << "constructor" << endl;
 	}
 
-	Future getFuture()
+	template<class T>
+	Future<T> getFuture()
 	{
 		log_ << "getFuture" << endl;
-		Future res(pFutureContent_);
+		Future<T> res(pFutureContent_);
 		return res;
 	}
 

@@ -21,7 +21,7 @@ public:
 	log_("SERVANT")
 	{}
 
-	int AddInt(int a. int b)
+	int AddInt(int a, int b)
 	{
 		return a+b;
 	}

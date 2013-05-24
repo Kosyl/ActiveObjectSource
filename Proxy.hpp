@@ -55,7 +55,7 @@ class Proxy: public ServantCreationPolicy
 {
 private:
 	std::vector<Scheduler> schedulers_;
-
+	ActivationQueue* 
 protected:
 	Proxy(int numThreads=1)
 	{
