@@ -26,7 +26,7 @@ public:
 	friend Logger& operator<<(Logger& o, T const& t);
 
 	template<typename T>
-	void write(T s)
+	void write(T s) 
 	{
 
 		if(printDetails_)

@@ -14,6 +14,19 @@ public:
 
 class FutureContent: public boost::noncopyable
 {
+
+private:
+	boost::any value_;
+	exception* exception_;
+	double progress_;
+	volatile FutureState state_;
+
+	mutable boost::mutex mutex_;
+	boost::condition_variable waitingFutures_;
+
+	boost::signal<void(double)> notifyObservers_;
+	mutable Logger log_;
+
 public:
 	typedef boost::mutex::scoped_lock sLock;
 
@@ -34,21 +47,21 @@ public:
 		notifyObservers_(progress);
 	}
 
-	double getProgress()
+	double getProgress() const
 	{
 		sLock lock(mutex_);
 		log_ << "getProgress (" << progress_ << ")" << endl;
 		return progress_;
 	}
 
-	bool isDone()
+	bool isDone() const
 	{
 		sLock lock(mutex_);
 		log_ << "isDone (" << (state_==FutureState::DONE?true:false) << ")" << endl;
 		return (state_==FutureState::DONE?true:false);
 	}
 
-	bool hasException()
+	bool hasException() const
 	{
 		sLock lock(mutex_);
 		log_ << "hasException (" << (exception_!=NULL) << ")" << endl;
@@ -73,21 +86,21 @@ public:
 
 		if(notifyObservers_.empty())
 		{
-			state_=FutureState::CANCELLED;
+			state_ = FutureState::CANCELLED;
 			log_ << "cancel - brak obserwatorow, ustawiam cancel" << endl;
 		}
-		exception_=new RequestCancelledException();
+		exception_ = new RequestCancelledException();
 	}
 
 	void setException(const exception& e)
 	{
 		sLock lock(mutex_);
 		cout << "set exception: " << e.what() << endl;
-		state_=FutureState::EXCEPTION;
-		exception_=new exception(e);
+		state_ = FutureState::EXCEPTION;
+		exception_ = new exception(e);
 	}
 
-	bool isCancelled()
+	bool isCancelled() const
 	{
 		sLock lock(mutex_);
 		log_ << "isCancelled (" << (state_==FutureState::CANCELLED?true:false) << ")" << endl;
@@ -148,17 +161,6 @@ public:
 		log_ << "~FutureContent()" << endl;
 	}
 
-private:
-	boost::any value_;
-	exception* exception_;
-	double progress_;
-	volatile FutureState state_;
-
-	boost::mutex mutex_;
-	boost::condition_variable waitingFutures_;
-
-	boost::signal<void(double)> notifyObservers_;
-	Logger log_;
 };
 
 #endif

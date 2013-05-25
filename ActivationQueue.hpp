@@ -15,7 +15,15 @@
 
 class ActivationQueue
 {
-	typedef boost::shared_ptr<Functor> FunPtr;
+	typedef boost::shared_ptr<Functor> funPtr;
+
+private:
+	/**
+	* queue for client requests
+	*/
+	std::queue <funPtr> queue_; 
+	mutable boost::mutex mutex_;
+	boost::condition_variable cond_;
 public:
 	/*
 	* Non-parameter constructor. 
@@ -26,21 +34,23 @@ public:
 	* pushes MethodRequest object to the queue
 	* @param mr MethodRequest object to be pushed into queue
 	*/
-	void push(FunPtr f) { 
+	void push(const funPtr f) 
+	{ 
 		boost::mutex::scoped_lock lock(mutex_);
 		queue_.push(f);
 	}
 
 	/**
-	* popping MethodRequest from the queue
+	* @brief popping MethodRequest from the queue
 	* @return MethodRequest object that is popped
 	*/
-	FunPtr pop() {
+	funPtr pop() 
+	{
 		boost::mutex::scoped_lock lock(mutex_);
 		while(queue_.empty()) {
 			cond_.wait(lock);
 		}
-		FunPtr tmp= queue_.front();
+		funPtr tmp= queue_.front();
 		queue_.pop();
 		return tmp;
 	}
@@ -48,29 +58,26 @@ public:
 	/**
 	* @return whether the queue is empty
 	*/
-	bool empty() const {
+	bool empty() const 
+	{
         boost::mutex::scoped_lock lock(mutex_);
         return queue_.empty();
     }
 	// to chyba wszystkie niezbedne metody, ale mozna dodac, zeby byla kolejka full-wypas
-	FunPtr front()  {
+	funPtr front()  
+	{
         boost::mutex::scoped_lock lock(mutex_);
         return queue_.front();
     }
 	/**
 	* @return size of the queue 
 	*/
-	unsigned int size() {
+	unsigned int size() const 
+	{
 		return queue_.size();
 	}
 
-private:
-	/**
-	* queue for client requests
-	*/
-	std::queue <FunPtr> queue_; 
-	mutable boost::mutex mutex_;
-	boost::condition_variable cond_;
+
 };
 //////////////////////////////////////////////////////////////////////////
 

@@ -17,7 +17,14 @@
 
 class Scheduler
 {
-	typedef boost::shared_ptr<Functor> FunPtr;
+	typedef boost::shared_ptr<Functor> funPtr;
+private:
+
+	ActivationQueue* queue_;
+	//Proxy* proxy_; //chyba nie
+	Servant* servant_;
+	boost::thread thread_;
+	mutable boost::mutex mutex_;
 public:
 	Scheduler(void) {}
 	/*
@@ -30,7 +37,8 @@ public:
 
 
 	~Scheduler(void) {}
-	void enqueue(FunPtr f) {
+
+	void enqueue(funPtr f) {
 		boost::mutex::scoped_lock lock(mutex_);
 		queue_->push(f);
 	}
@@ -42,7 +50,7 @@ private:
 	void dequeue()  {
 		while(!queue_->empty()){
 			boost::mutex::scoped_lock lock(mutex_);
-			FunPtr fun= queue_->pop();
+			funPtr fun= queue_->pop();
 			if(fun) fun->execute();
 			else break;
 		}
@@ -63,11 +71,7 @@ private:
 	}
 
 	
-	ActivationQueue* queue_;
-	//Proxy* proxy_; //chyba nie
-	Servant* servant_;
-	boost::thread thread_;
-	mutable boost::mutex mutex_;
+	
 };
 
 //Scheduler::

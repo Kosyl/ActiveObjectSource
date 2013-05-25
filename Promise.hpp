@@ -8,7 +8,7 @@
 class Promise
 {
 private:
-	Logger log_;
+	mutable Logger log_;
 	boost::shared_ptr<FutureContent> pFutureContent_;
 
 public:
@@ -20,7 +20,7 @@ public:
 	}
 
 	template<class T>
-	Future<T> getFuture()
+	Future<T> getFuture() const
 	{
 		log_ << "getFuture" << endl;
 		Future<T> res(pFutureContent_);
@@ -40,7 +40,7 @@ public:
 		pFutureContent_->setValue(val);
 	}
 
-	bool isCancelled()
+	bool isCancelled() const
 	{
 		log_ << "iscancelled (" << pFutureContent_->isCancelled() << ")" << endl;
 		return pFutureContent_->isCancelled();
