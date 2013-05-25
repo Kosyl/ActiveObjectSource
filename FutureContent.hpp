@@ -2,19 +2,24 @@
 #define _FUTURE_CONTENT_
 
 #include <boost/shared_ptr.hpp>
+#include <boost/exception_ptr.hpp>
 #include <boost/ref.hpp>
 
 enum FutureState {QUEUED, CANCELLED, INPROGRESS, EXCEPTION, DONE};
 
 class RequestCancelledException: public exception
 {
+
 public:
+
 	RequestCancelledException(){}
 };
 
 class FutureContent: public boost::noncopyable
 {
+
 public:
+
 	typedef boost::mutex::scoped_lock sLock;
 
 	FutureContent():
@@ -55,11 +60,19 @@ public:
 		return exception_!=NULL;//? ciekawe czy wystarczy, trzeba jakos zrobic rzucanie
 	}
 
-	exception getException()
+	boost::exception_ptr getException()
 	{
 		sLock lock(mutex_);
-		log_ << "getException (" << (exception_->what()) << ")" << endl;
-		return *exception_;//? ciekawe czy wystarczy, trzeba jakos zrobic rzucanie
+		log_ << "getException ()" << endl;
+		return exception_;//? ciekawe czy wystarczy, trzeba jakos zrobic rzucanie
+	}
+
+	void setException(boost::exception_ptr& e)
+	{
+		sLock lock(mutex_);
+		cout << "set exception: ()" << endl;
+		state_=FutureState::EXCEPTION;
+		exception_=e;
 	}
 
 	void cancel(boost::signals::connection c)
@@ -77,14 +90,6 @@ public:
 			log_ << "cancel - brak obserwatorow, ustawiam cancel" << endl;
 		}
 		exception_=new RequestCancelledException();
-	}
-
-	void setException(const exception& e)
-	{
-		sLock lock(mutex_);
-		cout << "set exception: " << e.what() << endl;
-		state_=FutureState::EXCEPTION;
-		exception_=new exception(e);
 	}
 
 	bool isCancelled()
@@ -106,6 +111,11 @@ public:
 		progressConnection_.disconnect();//sprawdzic czy ok
 	}
 
+	void setState(const FutureState& fs)
+	{
+		log_ << "setState" << endl;
+		state_=fs;
+	}
 
 	template<typename T>
 	void setValue(const T& val) 
@@ -115,7 +125,6 @@ public:
 		value_=val;
 		state_=FutureState::DONE;
 		progress_=1.0;
-		exception_=NULL;
 		waitingFutures_.notify_all();
 	}
 
@@ -125,7 +134,7 @@ public:
 		log_ << "getValue" << endl;
 		if(exception_)
 		{
-			throw exception_;
+			boost::rethrow_exception(exception_);
 		}
 
 		while(!(state_==FutureState::DONE || state_==FutureState::CANCELLED || state_==FutureState::EXCEPTION))
@@ -136,7 +145,7 @@ public:
 
 		if(exception_)
 		{
-			throw exception_;
+			boost::rethrow_exception(exception_);
 		}
 
 		boost::any res = value_;
@@ -149,8 +158,9 @@ public:
 	}
 
 private:
+
 	boost::any value_;
-	exception* exception_;
+	boost::exception_ptr exception_;
 	double progress_;
 	volatile FutureState state_;
 

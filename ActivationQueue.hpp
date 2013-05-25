@@ -1,7 +1,7 @@
 #ifndef ACTIVATIONQUEUE_HPP
 #define ACTIVATIONQUEUE_HPP
 
-#include "Command.hpp"
+#include "MethodRequest.hpp"
 #include <queue>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
@@ -13,20 +13,26 @@
 * @version 1.0
 */
 
+//sparametryzowalem ja, bedzie potrzebna informacja o konkretnym servancie
+//i przechowuje zwykle wskazniki do funktorow, a nie sprytne
+//mialem problem z shared_ptr do templatek, nie wiem czy czegos nie potrafilem czy faktycznie sie nie da
+template<class Servant>
 class ActivationQueue
 {
-	typedef boost::shared_ptr<Functor> FunPtr;
+
 public:
+
 	/*
 	* Non-parameter constructor. 
 	*/
 	ActivationQueue(void) {}
 	~ActivationQueue(void) {}
+
 	/**
 	* pushes MethodRequest object to the queue
 	* @param mr MethodRequest object to be pushed into queue
 	*/
-	void push(FunPtr f) { 
+	void push(Functor<Servant>* f) { 
 		boost::mutex::scoped_lock lock(mutex_);
 		queue_.push(f);
 	}
@@ -35,12 +41,12 @@ public:
 	* popping MethodRequest from the queue
 	* @return MethodRequest object that is popped
 	*/
-	FunPtr pop() {
+	Functor<Servant>* pop() {
 		boost::mutex::scoped_lock lock(mutex_);
 		while(queue_.empty()) {
 			cond_.wait(lock);
 		}
-		FunPtr tmp= queue_.front();
+		Functor<Servant*> tmp= queue_.front();
 		queue_.pop();
 		return tmp;
 	}
@@ -52,11 +58,13 @@ public:
         boost::mutex::scoped_lock lock(mutex_);
         return queue_.empty();
     }
+
 	// to chyba wszystkie niezbedne metody, ale mozna dodac, zeby byla kolejka full-wypas
-	FunPtr front()  {
+	Functor<Servant>* front()  {
         boost::mutex::scoped_lock lock(mutex_);
         return queue_.front();
     }
+
 	/**
 	* @return size of the queue 
 	*/
@@ -65,10 +73,11 @@ public:
 	}
 
 private:
+
 	/**
 	* queue for client requests
 	*/
-	std::queue <FunPtr> queue_; 
+	std::queue <Functor<Servant>* > queue_; 
 	mutable boost::mutex mutex_;
 	boost::condition_variable cond_;
 };

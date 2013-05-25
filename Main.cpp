@@ -3,7 +3,7 @@
 
 //#include "Command.hpp"
 #include "Future.hpp"
-#include "Promise.hpp"
+#include "Example1.hpp"
 #include "SimpleLog.hpp"
 #include <boost\bind.hpp>
 #include <boost\function.hpp>
@@ -43,7 +43,11 @@ void testFuture()
 {
 	Logger log("MAIN");
 	log << "//////////////////Test rzutowania///////////////////" << endl;
-	log << "Promise creation" << endl;
+
+	//ten test juz nie jest aktualny chyba:P
+	//bedzie trzeba przerobic
+
+	/*log << "Promise creation" << endl;
 	Promise promise;
 	log << "Future creation" << endl;
 	Future<int> future = promise.getFuture<int>();
@@ -74,51 +78,19 @@ void testFuture()
 	Future<int> future2 = promise.getFuture<int>();
 	Future<int> future3= future2;
 	log << "Future: = operator" << endl;
-	future3= future;
+	future3= future;*/
+}
+
+void testProxy()
+{
+	//TODO wszystko
 }
 
 int main(int argc, char* argv[])
 {	
-	//Proxy proxy;
-	testFuture();
+	//testFuture();
 
-	//boost::shared_ptr<Future<int>>  re1 = proxy.quickSchedule<int>(boost::bind(fun1,4,12));
-	//boost::shared_ptr<Future<double>>  re2 = proxy.quickSchedule<double>(boost::bind(fun2,4.34,1.12));
-
-	//boost::shared_ptr<Future<double>>  re3 = proxy.quickSchedule<double>(boost::bind(fun1,3,4));
-
-	//proxy.quickExecute();
-
-	////Future<int>* res1 = proxy.quickSchedule<double>(boost::bind(fun1,4,12));
-	////Future<double>* res1 = proxy.quickSchedule<int>(boost::bind(fun1,4,12));
-
-	//struct meth: public Command<string>
-	//{
-	//	string myFun(string a, string b)
-	//	{
-	//		return a+b;
-	//	}
-	//	virtual void execute()
-	//	{
-
-	//	}
-
-	//}progressCmd;
-
-	////testowa zmiana zeby zobaczyc czy git wylapie
-
-	//boost::shared_ptr<Future<int>> res1 = proxy.quickSchedule<int>(boost::bind(fun1,4,12));
-	//boost::shared_ptr<Future<double>> res2 = proxy.quickSchedule<double>(boost::bind(fun2,4.34,1.12));
-
-	//cout << "res1 ready? " << res1->isDone() << endl;
-	//cout << "res2 ready? " << res2->isDone() << endl;
-	//cout << "execution" << endl;
-	//proxy.quickExecute();
-
-	//cout << "res1 ready? " << res1->isDone() << endl;
-	//cout << "res2 ready? " << res2->isDone() << endl;
-	//cout << "res1 value " << res1->getValue() << endl;
-	//cout << "res2 value " << res2->getValue() << endl;
+	testProxy();
 	
 	system("PAUSE");
 

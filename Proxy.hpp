@@ -2,18 +2,20 @@
 #define _PROXY_
 
 #include "Future.hpp"
-#include "Command.hpp"
-#include "Promise.hpp"
-#include "Servant.hpp"
+#include "MethodRequest.hpp"
+#include "FutureContentCreator.hpp"
 #include <boost\function.hpp>
 #include <vector>
 
 using namespace std;
 
+//daje metode getServant ktora dziala jak fabryka
 template<typename T>
 class ServantFactoryCreator
 {
+
 public:
+
 	ServantFactoryCreator()
 	{}
 
@@ -21,19 +23,26 @@ public:
 	{
 		return new T();
 	}
+
+protected:
+
+	virtual ~ServantFactoryCreator(){}
 };
 
+//jw prototyp
 template<typename T>
-class prototypeServantCreator
+class ServantPrototypeCreator
 {
+
 public:
-	prototypeServantCreator(T* pObj = 0)
+
+	ServantPrototypeCreator(T* pObj = 0)
 		:pPrototype_(pObj)
 	{}
 
 	T* getServant()
 	{
-		return pPrototype_ ? pPrototype_->Clone() : 0;
+		return pPrototype_ ? new T(*pPrototype_) : 0;
 	}
 
 	T* GetPrototype()
@@ -47,43 +56,46 @@ public:
 	}
 
 private:
+
 	T* pPrototype_;
+
+protected:
+
+	virtual ~ServantPrototypeCreator()
+	{
+		delete pPrototype_;
+	}
 };
 
-template<class ServantCreationPolicy>
-class Proxy: public ServantCreationPolicy
+//parametr: typ servanta i wytyczna jego tworzenia
+//przyklad w pliku Example1.hpp
+template<class Servant, template <class U> ServantCreationPolicy>
+class Proxy: public ServantCreationPolicy<Servant>
 {
-private:
-	std::vector<Scheduler> schedulers_;
-	ActivationQueue* 
+
 protected:
-	Proxy(int numThreads=1)
+
+	//obie skladowe musza byc sparametryzowane konkretnym servantem
+	std::vector<Scheduler<Servant> > schedulers_;
+	ActivationQueue<Servant>* AQ_;
+
+	Proxy(int numThreads=1):
+		AQ_(new ActivationQueue<Servant>())
 	{
 		for(int i=0;i<numThreads;++i)
 		{
-			Servant* serv = getServant();/*
-			Scheduler scheduler(
-			schedulers_.push_back(*/
-
+			//korzystamy z wytycznej do wygenerowania wskaznika do servanta
+			Servant* serv = getServant();
+			//i robimy schedulera
+			schedulers_.push_back(Scheduler<Servant>(AQ_,serv));
 		}
 	}
 
-	template<typename T>
-	boost::shared_ptr<Future<T>> quickSchedule(boost::function<T()> fun)
+	virtual ~Proxy()
 	{
-		Promise<T>* prom = new Promise<T>();
-		boost::shared_ptr<Future<T>> fut = prom->getFuture();
-		Funktor* funkt = new MethodRequest<T>(fun,prom);
-		funktors_.push_back(funkt);
-		return fut;
+		//TODO dodac kasowanie schedulerow
+		delete AQ_;
 	}
-
-	template<typename T>
-	boost::shared_ptr<Future<T>> quickSchedule(Command<T>* context, boost::function<T()> fun)
-	{
-		boost::shared_pointer<Future<T>> fut = context->promise_->getFuture();
-	}
-
 };
 
 #endif

@@ -12,24 +12,28 @@
 
 using namespace std;
 
+//todo: konwersja miedzy future
+//i miedzy roznymi typami future, czyli troche templatek
 template<typename T>
 class Future
 {
+
 private:
+
 	boost::shared_ptr<FutureContent> pFutureContent_;
 	boost::function<void(double)> progressSlot_;
 	boost::signals::connection progressConnection_;
+
 	Logger log_;
 
 public:
+
 	Future(boost::shared_ptr<FutureContent> target):
 		pFutureContent_(target),
 		log_("FUTURE")
 	{	
 		log_ << "constructor" << endl;
 	}
-
-	//todo: konwersja miedzy future
 
 	Future(Future& rhs):
 		pFutureContent_(rhs.pFutureContent_),
@@ -39,9 +43,7 @@ public:
 		if(progressSlot_)pFutureContent_->dettachProgressObserver(progressConnection_); //odczepienie sie od starego sygnalu
 		setFunction(rhs.progressSlot_);
 	}
-/*
-*
-*/
+
 	Future& operator=(const Future& rhs)
 	{
 		log_ << "= operator" << endl;
@@ -106,7 +108,6 @@ public:
 	{
 		log_ << "~Future()" << endl;
 	}
-
 };
 
 #endif
