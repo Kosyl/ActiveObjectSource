@@ -16,7 +16,7 @@ public:
 	int a;
 	Logger log;
 
-	X():
+	X(int b=0):
 		log("X")
 	{}
 
@@ -70,6 +70,11 @@ void testFuture()
 	log << "Progress: " << future.getProgress() << endl;
 	log << "IsDone: " << future.isDone() << endl;
 	log << "getValue: " << future.getValue() << endl;
+	log << "Future copy" << endl;
+	Future<int> future2 = promise.getFuture<int>();
+	Future<int> future3= future2;
+	log << "Future: = operator" << endl;
+	future3= future;
 }
 
 int main(int argc, char* argv[])
@@ -114,7 +119,7 @@ int main(int argc, char* argv[])
 	//cout << "res2 ready? " << res2->isDone() << endl;
 	//cout << "res1 value " << res1->getValue() << endl;
 	//cout << "res2 value " << res2->getValue() << endl;
-
+	
 	system("PAUSE");
 
 	return EXIT_SUCCESS;

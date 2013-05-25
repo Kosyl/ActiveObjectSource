@@ -22,8 +22,9 @@ public:
 	Scheduler(void) {}
 	/*
 	* @param q pointer to queue
+	* @patam s pointer to servant
 	*/
-	Scheduler(ActivationQueue* q): queue_(q){
+	Scheduler(ActivationQueue* q, Servant* s): queue_(q), servant_(s) {
 		thread_=boost::thread(boost::bind(&Scheduler::run,this));
 	}
 
@@ -63,7 +64,8 @@ private:
 
 	
 	ActivationQueue* queue_;
-	Proxy* proxy_; //chyba nie
+	//Proxy* proxy_; //chyba nie
+	Servant* servant_;
 	boost::thread thread_;
 	mutable boost::mutex mutex_;
 };
