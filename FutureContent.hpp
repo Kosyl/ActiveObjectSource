@@ -39,21 +39,21 @@ public:
 		notifyObservers_(progress);
 	}
 
-	double getProgress()
+	double getProgress() const
 	{
 		sLock lock(mutex_);
 		log_ << "getProgress (" << progress_ << ")" << endl;
 		return progress_;
 	}
 
-	bool isDone()
+	bool isDone() const
 	{
 		sLock lock(mutex_);
 		log_ << "isDone (" << (state_==FutureState::DONE?true:false) << ")" << endl;
 		return (state_==FutureState::DONE?true:false);
 	}
 
-	bool hasException()
+	bool hasException() const
 	{
 		sLock lock(mutex_);
 		log_ << "hasException (" << (exception_!=NULL) << ")" << endl;
@@ -86,13 +86,13 @@ public:
 
 		if(notifyObservers_.empty())
 		{
-			state_=FutureState::CANCELLED;
+			state_ = FutureState::CANCELLED;
 			log_ << "cancel - brak obserwatorow, ustawiam cancel" << endl;
 		}
-		exception_=new RequestCancelledException();
+		exception_ = new RequestCancelledException();
 	}
 
-	bool isCancelled()
+	bool isCancelled() const
 	{
 		sLock lock(mutex_);
 		log_ << "isCancelled (" << (state_==FutureState::CANCELLED?true:false) << ")" << endl;

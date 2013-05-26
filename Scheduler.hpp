@@ -80,6 +80,7 @@ private:
 		return true;
 	}
 
+	
 	ActivationQueue* queue_;
 	Servant* servant_;
 	boost::thread thread_;

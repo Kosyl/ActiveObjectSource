@@ -78,7 +78,10 @@ void testFuture()
 	Future<int> future2 = promise.getFuture<int>();
 	Future<int> future3= future2;
 	log << "Future: = operator" << endl;
-	future3= future;*/
+	log << "Future implicit conversion" << endl;
+	cout<<(future-2)<<endl;
+	cout<<(0-future)<<endl;
+	*/
 }
 
 void testProxy()
