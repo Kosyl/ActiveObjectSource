@@ -8,6 +8,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread.hpp>
 
 using namespace boost::posix_time;
 
@@ -45,7 +46,7 @@ public:
 			const long seconds      = td.seconds();
 			const long milliseconds = (const long)(td.total_milliseconds() -	((hours * 3600 + minutes * 60 + seconds) * 1000));
 
-			cout << hours+2 << ":" << minutes << ":" << seconds << "." << milliseconds << " " << setw(10) << modul_ << ": ";
+			cout << hours+2 << ":" << minutes << ":" << seconds << "." << milliseconds << " " <<boost::this_thread::get_id()<<" "<< setw(10) << modul_ << ": ";
 		}
 
 		cout << s;
@@ -81,7 +82,7 @@ public:
 				const long seconds      = td.seconds();
 				const long milliseconds = (const long)(td.total_milliseconds() -	((hours * 3600 + minutes * 60 + seconds) * 1000));
 
-				cout << hours+2 << ":" << minutes << ":" << seconds << "." << milliseconds << " " << setw(10) << modul_ << ": ";
+				cout << hours+2 << ":" << minutes << ":" << seconds << "." << milliseconds << " " <<boost::this_thread::get_id()<<" "<< setw(10) << modul_ << ": ";
 			}
 			cout << s;
 		}
