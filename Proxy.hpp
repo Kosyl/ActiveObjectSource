@@ -91,14 +91,23 @@ protected:
 		{
 			//korzystamy z wytycznej do wygenerowania wskaznika do servanta
 			Servant* serv = getServant();
-			//i robimy schedulera
 			schedulers_.push_back(new Scheduler<Servant>(AQ_,serv));
+			//i robimy schedulera
+			
 		}
 	}
+
+	struct stop 
+	{
+		void operator() (Scheduler<Servant>* i) {
+			i->stop();
+		}
+	} stopScheduler;
 
 	virtual ~Proxy()
 	{
 		log_<<"destructor"<<endl;
+		for_each( schedulers_.begin(), schedulers_.end(), stopScheduler);
 		//TODO dodac kasowanie schedulerow
 		delete AQ_;
 	}

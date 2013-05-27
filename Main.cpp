@@ -86,7 +86,7 @@ void testFuture()
 
 void testProxy()
 {
-	CalcProxy p(3);
+	CalcProxy p(5);
 	//TODO wszystko
 }
 

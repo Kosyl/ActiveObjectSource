@@ -28,12 +28,16 @@ private:
 	mutable boost::mutex mutex_;
 	boost::condition_variable cond_;
 	mutable Logger log_;
+	bool shouldIEnd;
 public:
 
 	/*
 	* Non-parameter constructor. 
 	*/
-	ActivationQueue(void): log_("AQ") {}
+	ActivationQueue(void): 
+	  log_("AQ"),
+	  shouldIEnd(false)
+	  {}
 	~ActivationQueue(void) {}
 
 	/**
@@ -55,7 +59,7 @@ public:
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		log_<<"pop"<<endl;
-		while(queue_.empty()) 
+		while((!shouldIEnd) && queue_.empty()) 
 		{
 			cond_.wait(lock);
 		}
@@ -90,6 +94,21 @@ public:
 		log_<<"size"<<endl;
 		return queue_.size();
 	}
+	/**
+	* getter of shouldIEnd
+	*/
+	bool isShouldIEnd() const
+	{
+		return shouldIEnd;
+	}
+	/**
+	* setter of shouldIEnd
+	*/
+	void setShouldIEnd(const bool& s) 
+	{
+		shouldIEnd=s;
+	}
+
 };
 //////////////////////////////////////////////////////////////////////////
 
