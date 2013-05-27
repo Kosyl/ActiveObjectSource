@@ -84,7 +84,7 @@ protected:
 
 	Proxy(int numThreads=1):
 		AQ_(new ActivationQueue<Servant>()),
-		log_("PROXY")
+		log_("PROXY",2)
 	{
 		log_<<"constructor"<<endl;
 		for(int i=0;i<numThreads;++i)

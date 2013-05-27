@@ -36,7 +36,7 @@ public:
 		servant_(s),
 		shouldIEnd_(false),
 		thread_(boost::thread(boost::bind(&Scheduler::run,this))),
-		log_("Scheduler")
+		log_("Scheduler",3)
 	{
 		log_ << "constructor" << endl;
 	}
