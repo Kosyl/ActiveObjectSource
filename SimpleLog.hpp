@@ -8,6 +8,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/recursive_mutex.hpp>
+
 using namespace boost::posix_time;
 
 using namespace std;
@@ -17,8 +18,9 @@ class Logger
 private:
 	string modul_;
 	bool printDetails_;
-	static boost::recursive_mutex mutex_;
+	static auto_ptr<boost::recursive_mutex> mutex_;
 public:
+
 	Logger(string s):
 		modul_(s),
 		printDetails_(true)
@@ -30,7 +32,7 @@ public:
 	template<typename T>
 	void write(T s) 
 	{
-		boost::recursive_mutex::scoped_lock lock(mutex_);
+		boost::recursive_mutex::scoped_lock lock(*mutex_);
 
 		if(printDetails_)
 		{
@@ -52,14 +54,14 @@ public:
 	template<>
 	void write(const char* s)
 	{
-		boost::recursive_mutex::scoped_lock lock(mutex_);
+		boost::recursive_mutex::scoped_lock lock(*mutex_);
 		string str(s);
 		write(str);
 	}
 	template<>
 	void write(string s)
 	{
-		boost::recursive_mutex::scoped_lock lock(mutex_);
+		boost::recursive_mutex::scoped_lock lock(*mutex_);
 		if(s=="\n" || s.find("\n")!=string::npos)
 		{
 			printDetails_=true;
@@ -85,6 +87,8 @@ public:
 		}
 	}
 };
+
+auto_ptr<boost::recursive_mutex> Logger::mutex_=auto_ptr<boost::recursive_mutex>(new boost::recursive_mutex());
 
 template<typename T>
 Logger& operator<<(Logger& o, T const& t)

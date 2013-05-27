@@ -86,9 +86,9 @@ protected:
 		AQ_(new ActivationQueue<Servant>()),
 		log_("PROXY")
 	{
+		log_<<"constructor"<<endl;
 		for(int i=0;i<numThreads;++i)
 		{
-			log_<<"constructor"<<endl;
 			//korzystamy z wytycznej do wygenerowania wskaznika do servanta
 			Servant* serv = getServant();
 			//i robimy schedulera
