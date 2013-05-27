@@ -20,7 +20,9 @@ protected:
 
 public:
 
-	Functor(){}
+	Functor(boost::shared_ptr<FutureContent> content):
+		content_(content)
+	{}
 	virtual ~Functor();
 
 	virtual void execute(Servant*)=0;
@@ -50,8 +52,8 @@ private:
 public:
 
 	MethodRequest(boost::function<ReturnType(Servant*)> f, boost::shared_ptr<FutureContent> content):
-		command_(f),
-		content_(content)
+		Functor(content),
+		command_(f)
 	{}
 
 	//Scheduler przekaze tu wskaznik na servanta
@@ -66,9 +68,10 @@ public:
 			{
 				content_->setValue(command_(servant));
 			}
-			catch(RequestCancelledException& rc)
+			catch(RequestCancelledException)
 			{
-				content_->setCancelled();
+				//moze tu cos powinno byc
+				//w sumie to nastepuje, gdy zaden future nie czeka na content
 			}
 			catch(...)
 			{

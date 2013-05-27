@@ -75,7 +75,7 @@ protected:
 	void setCancelled()
 	{
 		log_ << "setException ()" << endl;
-		pFutureContent_->setException(boost::copy_exception(new RequestCancelledException()));
+		//pFutureContent_->setException(boost::copy_exception(new RequestCancelledException()));
 		pFutureContent_->setState(FutureState::CANCELLED);
 	}
 

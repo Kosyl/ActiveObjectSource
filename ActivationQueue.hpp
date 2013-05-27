@@ -20,12 +20,11 @@ template<class Servant>
 class ActivationQueue
 {
 
-
 private:
 	/**
 	* queue for client requests
 	*/
-	std::queue <funPtr> queue_; 
+	std::queue <Functor<Servant>* > queue_; 
 	mutable boost::mutex mutex_;
 	boost::condition_variable cond_;
 public:
@@ -40,7 +39,7 @@ public:
 	* pushes MethodRequest object to the queue
 	* @param mr MethodRequest object to be pushed into queue
 	*/
-	void push(Functor<Servant>* f) { 
+	void push(Functor<Servant>* f)
 	{ 
 		boost::mutex::scoped_lock lock(mutex_);
 		queue_.push(f);
@@ -50,13 +49,14 @@ public:
 	* @brief popping MethodRequest from the queue
 	* @return MethodRequest object that is popped
 	*/
-	Functor<Servant>* pop() {
+	Functor<Servant>* pop()
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		while(queue_.empty()) {
+		while(queue_.empty()) 
+		{
 			cond_.wait(lock);
 		}
-		Functor<Servant*> tmp= queue_.front();
+		Functor<Servant>* tmp= queue_.front();
 		queue_.pop();
 		return tmp;
 	}
@@ -71,7 +71,7 @@ public:
     }
 
 	// to chyba wszystkie niezbedne metody, ale mozna dodac, zeby byla kolejka full-wypas
-	Functor<Servant>* front()  {
+	Functor<Servant>* front()
 	{
         boost::mutex::scoped_lock lock(mutex_);
         return queue_.front();
@@ -84,10 +84,6 @@ public:
 	{
 		return queue_.size();
 	}
-
-
-
-	std::queue <Functor<Servant>* > queue_; 
 };
 //////////////////////////////////////////////////////////////////////////
 

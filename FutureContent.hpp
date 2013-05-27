@@ -89,7 +89,7 @@ public:
 			state_ = FutureState::CANCELLED;
 			log_ << "cancel - brak obserwatorow, ustawiam cancel" << endl;
 		}
-		exception_ = new RequestCancelledException();
+		//exception_ = boost::copy_exception(new RequestCancelledException());
 	}
 
 	bool isCancelled() const
@@ -164,11 +164,11 @@ private:
 	double progress_;
 	volatile FutureState state_;
 
-	boost::mutex mutex_;
+	mutable boost::mutex mutex_;
 	boost::condition_variable waitingFutures_;
 
 	boost::signal<void(double)> notifyObservers_;
-	Logger log_;
+	mutable Logger log_;
 };
 
 #endif

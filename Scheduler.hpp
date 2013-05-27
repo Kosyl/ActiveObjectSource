@@ -25,12 +25,13 @@ public:
 	* @param q pointer to queue
 	* @param s pointer to servant
 	*/
-	Scheduler(ActivationQueue* q, Servant* s):
+	Scheduler(ActivationQueue<Servant>* q, Servant* s):
 		queue_(q),
 		servant_(s),
-		shouldIEnd_(false)
+		shouldIEnd_(false),
+		thread_(boost::thread(boost::bind(&Scheduler::run,this)))
 	{
-		thread_=boost::thread(boost::bind(&Scheduler::run,this));
+		//thread_=boost::thread(boost::bind(&Scheduler::run,this));
 	}
 
 	~Scheduler(void) {}
@@ -56,7 +57,7 @@ private:
 			//tu wywolanie wlasciej funkcji; przechwytywanie wyjatkow jest w MethodRequest
 			fun->execute(servant_);
 		}
-		else break;
+		//else fun->getFutureContent()->setException(boost::copy_exception(new NullCommandException));
 	}
 
 	void run() 
@@ -81,7 +82,7 @@ private:
 	}
 
 	
-	ActivationQueue* queue_;
+	ActivationQueue<Servant>* queue_;
 	Servant* servant_;
 	boost::thread thread_;
 	mutable boost::mutex mutex_;

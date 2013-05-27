@@ -4,6 +4,8 @@
 #include "Future.hpp"
 #include "MethodRequest.hpp"
 #include "FutureContentCreator.hpp"
+#include "Scheduler.hpp"
+#include "ActivationQueue.hpp"
 #include <boost\function.hpp>
 #include <vector>
 
@@ -69,14 +71,14 @@ protected:
 
 //parametr: typ servanta i wytyczna jego tworzenia
 //przyklad w pliku Example1.hpp
-template<class Servant, template <class U> ServantCreationPolicy>
+template<class Servant, template <class U> class ServantCreationPolicy>
 class Proxy: public ServantCreationPolicy<Servant>
 {
 
 protected:
 
 	//obie skladowe musza byc sparametryzowane konkretnym servantem
-	std::vector<Scheduler<Servant> > schedulers_;
+	std::vector<Scheduler<Servant>* > schedulers_;
 	ActivationQueue<Servant>* AQ_;
 
 	Proxy(int numThreads=1):
@@ -87,7 +89,7 @@ protected:
 			//korzystamy z wytycznej do wygenerowania wskaznika do servanta
 			Servant* serv = getServant();
 			//i robimy schedulera
-			schedulers_.push_back(Scheduler<Servant>(AQ_,serv));
+			schedulers_.push_back(new Scheduler<Servant>(AQ_,serv));
 		}
 	}
 

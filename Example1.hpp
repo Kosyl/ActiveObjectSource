@@ -52,7 +52,7 @@ public:
 		Future<int> fut(pContent);
 
 		//zbindowanie odpowiedniej metody, pozostawienie argumentu na wskaznik do konkretnego servanta
-		boost::function<int(CalcServant*)> f = boost::bind(CalcServant::AddInt,_1,a,b);
+		boost::function<int(CalcServant*)> f = boost::bind(&CalcServant::AddInt,_1,a,b);
 
 		//utworzenie funktora
 		//mowimy mu, zeby zwracal int i ze klasa servanta to CalcServant
