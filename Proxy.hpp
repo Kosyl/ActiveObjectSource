@@ -74,6 +74,7 @@ protected:
 template<class Servant, template <class U> class ServantCreationPolicy>
 class Proxy: public ServantCreationPolicy<Servant>
 {
+	mutable Logger log_;
 
 protected:
 
@@ -82,10 +83,12 @@ protected:
 	ActivationQueue<Servant>* AQ_;
 
 	Proxy(int numThreads=1):
-		AQ_(new ActivationQueue<Servant>())
+		AQ_(new ActivationQueue<Servant>()),
+		log_("PROXY")
 	{
 		for(int i=0;i<numThreads;++i)
 		{
+			log_<<"constructor"<<endl;
 			//korzystamy z wytycznej do wygenerowania wskaznika do servanta
 			Servant* serv = getServant();
 			//i robimy schedulera
@@ -95,9 +98,11 @@ protected:
 
 	virtual ~Proxy()
 	{
+		log_<<"destructor"<<endl;
 		//TODO dodac kasowanie schedulerow
 		delete AQ_;
 	}
+
 };
 
 #endif

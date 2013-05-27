@@ -27,12 +27,13 @@ private:
 	std::queue <Functor<Servant>* > queue_; 
 	mutable boost::mutex mutex_;
 	boost::condition_variable cond_;
+	mutable Logger log_;
 public:
 
 	/*
 	* Non-parameter constructor. 
 	*/
-	ActivationQueue(void) {}
+	ActivationQueue(void): log_("AQ") {}
 	~ActivationQueue(void) {}
 
 	/**
@@ -42,6 +43,7 @@ public:
 	void push(Functor<Servant>* f)
 	{ 
 		boost::mutex::scoped_lock lock(mutex_);
+		log_<<"push"<<endl;
 		queue_.push(f);
 	}
 
@@ -52,6 +54,7 @@ public:
 	Functor<Servant>* pop()
 	{
 		boost::mutex::scoped_lock lock(mutex_);
+		log_<<"pop"<<endl;
 		while(queue_.empty()) 
 		{
 			cond_.wait(lock);
@@ -67,6 +70,7 @@ public:
 	bool empty() const 
 	{
         boost::mutex::scoped_lock lock(mutex_);
+		log_<<"empty"<<endl;
         return queue_.empty();
     }
 
@@ -74,6 +78,7 @@ public:
 	Functor<Servant>* front()
 	{
         boost::mutex::scoped_lock lock(mutex_);
+		log_<<"front"<<endl;
         return queue_.front();
     }
 
@@ -82,6 +87,7 @@ public:
 	*/
 	unsigned int size() const 
 	{
+		log_<<"size"<<endl;
 		return queue_.size();
 	}
 };
