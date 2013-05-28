@@ -31,9 +31,22 @@ public:
 
 	int ReallyFrickinLongAddInt(int a, int b)
 	{
-		for(double i=0;i<1.0;i+=0.2)
+		for(double i=0;i<1.0;i+=0.1)
 		{
 			boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+			setProgress(i);
+			if(isCancelled()) 
+				throw RequestCancelledException();
+		}
+
+		return a+b;
+	}
+
+	int SlowAddInt(int a, int b)
+	{
+		for(double i=0;i<1.0;i+=0.5)
+		{
+			boost::this_thread::sleep(boost::posix_time::milliseconds(3500));
 			setProgress(i);
 			if(isCancelled()) 
 				throw RequestCancelledException();
@@ -120,6 +133,23 @@ public:
 		Future<int> fut(pContent);
 		DLOG(log_ << "Add() - binding" << endl);
 		boost::function<int(CalcServant*)> f = boost::bind(&CalcServant::ReallyFrickinLongAddInt,_1,a,b);
+		DLOG(log_ << "Add() - request creation" << endl);
+		MethodRequest<int,CalcServant>* request = new MethodRequest<int,CalcServant>(f,pContent);
+		Functor<CalcServant>* functor = request;
+		DLOG(log_ << "Add() - pushing into AQ" << endl);
+		AQ_->push(functor);
+		DLOG(log_ << "Add() - returning future" << endl);
+		return fut;
+	}
+
+	Future<int> SlowAddInt(int a, int b)
+	{
+		DLOG(log_ << "Add() - content creation" << endl);
+		boost::shared_ptr<FutureContent> pContent(new FutureContent());
+		DLOG(log_ << "Add() - future creation" << endl);
+		Future<int> fut(pContent);
+		DLOG(log_ << "Add() - binding" << endl);
+		boost::function<int(CalcServant*)> f = boost::bind(&CalcServant::SlowAddInt,_1,a,b);
 		DLOG(log_ << "Add() - request creation" << endl);
 		MethodRequest<int,CalcServant>* request = new MethodRequest<int,CalcServant>(f,pContent);
 		Functor<CalcServant>* functor = request;

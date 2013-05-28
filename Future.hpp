@@ -64,6 +64,9 @@ public:
 	{
 		DLOG(log_ << "setFunction" << endl);
 		progressSlot_=fun;
+		boost::signals::connection tmp = pFutureContent_->attachProgressObserver(progressSlot_);
+		pFutureContent_->cancel(progressConnection_);
+		progressConnection_=tmp;
 	}
 
 	T getValue() const
