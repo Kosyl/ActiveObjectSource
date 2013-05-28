@@ -5,6 +5,13 @@
 #ifndef _SIMPLELOG_
 #define _SIMPLELOG_
 
+
+#ifdef _DEBUG 
+#define DLOG(x) x
+#else 
+#define DLOG(x)
+#endif
+
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/mutex.hpp>
@@ -73,7 +80,7 @@ public:
 		const long seconds      = td.seconds();
 		const long milliseconds = (const long)(td.total_milliseconds() -	((hours * 3600 + minutes * 60 + seconds) * 1000));
 
-		ss << hours+2 << ":" << minutes << ":" << seconds << "." << milliseconds << " | " << boost::this_thread::get_id() << " | "<< setw(14) << modul_ << ": ";
+		ss << hours+2 << ":" << setw(2) << minutes << ":" << setw(2) << seconds << "." << setw(3) << milliseconds << " | " << setw(5) << boost::this_thread::get_id() << " | "<< setw(10) << modul_ << ": ";
 	}
 
 	template<typename T>
@@ -166,7 +173,6 @@ Logger& operator<<(Logger& o, std::ostream& (*f)(std::ostream&))
 	o.write("\n");
 	return o;
 }
-
 
 
 #endif

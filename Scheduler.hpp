@@ -4,6 +4,7 @@
 #include "ActivationQueue.hpp"
 #include "MethodRequest.hpp"
 #include "Proxy.hpp"
+#include "SimpleLog.hpp"
 #include <boost/thread/mutex.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/thread.hpp>
@@ -35,27 +36,25 @@ public:
 		queue_(q),
 		servant_(s),
 		shouldIEnd_(false),
-		thread_(boost::thread(boost::bind(&Scheduler::run,this))),
-		log_("Scheduler",3)
+		log_("Scheduler",3),
+		thread_(boost::thread(boost::bind(&Scheduler::run,this)))
+		
 	{
-		log_ << "constructor" << endl;
+		DLOG(log_ << "constructor" << endl);
 	}
 
 	~Scheduler(void) 
 	{
-		log_ << "destructor" << endl;
+		DLOG(log_ << "destructor" << endl);
+		delete servant_;
 	}
 
-	//void notify do przestania pracy
 	bool stop() 
 	{ 
-		//zatrzymywanie watku
-		log_ << "stop" << endl;
 		shouldIEnd_=true;
-		queue_->setShouldIEnd(true);
+		DLOG(log_ << "stop() - joining" << endl);
 		thread_.join();
-		//- jakas flaga na false?
-		//- prosze uprzejmie
+		DLOG(log_ << "stop() - joined" << endl);
 		return true;
 	}
 
@@ -64,15 +63,18 @@ private:
 	void dequeue()  
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		log_ << "dequeue" << endl;
-		//wskaznik na Functor
-		//ale metody wirtualne wyceluja w dobra konkretna realizacje
-		//tu byl jeszcze lock na queue.isEmpty, ale to jest sprawdzane w popie
+		DLOG(log_ << "dequeue" << endl);
+
 		Functor<Servant>* fun= queue_->pop();
-		if(shouldIEnd_) return;
+		if(shouldIEnd_ || fun==NULL)
+		{
+			DLOG(log_<<"breaking dequeue"<<endl);
+			return;
+		}
 
 		if(fun->isReady())
 		{
+			DLOG(log_ << "invoking request" << endl);
 			//mowimy servantowi schedulera, zeby wskazywal na ten sam content co zadanie wyjete z kolejki
 			servant_->setFutureContent(fun->getFutureContent());
 
@@ -80,20 +82,18 @@ private:
 			fun->execute(servant_);
 		}
 		//else fun->getFutureContent()->setException(boost::copy_exception(new NullCommandException));
+		delete fun;
 	}
 
 	void run() 
 	{ 
-		//- nie wiem, czy to trafiana nazwa, chodzi o funkcje, ktora ma leciec przez caly cykl zycia Schedulera
-		//- wyborna
-		log_ << "run" <<endl;
+		DLOG(log_ << "run" <<endl);
 		while(!shouldIEnd_)
 		{ 
-			// w dequeue sa locki 
 			dequeue();
 		}
+		DLOG(log_ << "thread finishing..." <<endl);
 	}	
-	
 };
 
 //Scheduler::

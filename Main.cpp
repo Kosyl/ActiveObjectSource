@@ -7,95 +7,150 @@
 #include "SimpleLog.hpp"
 #include <boost\bind.hpp>
 #include <boost\function.hpp>
+#include <boost\thread.hpp>
 
 using namespace std;
 
-class X
-{
-public:
-	int a;
-	Logger log;
-
-	X(int b=0):
-		log("X")
-	{}
-
-	int fun1(int a, int b)
-	{
-		log << "fun1" << endl;
-		a=a+b;
-		return a;
-	}
-
-	double fun2(double a, double b)
-	{
-		log << "fun2" << endl;
-		return a-b;
-	}
-};
-
-void callback(double progress)
-{
-	cout << "CALLBACK: " << progress << endl;
-}
-
 void testFuture()
 {
-	Logger log("MAIN");
+	DLOG(
+		Logger log("MAIN");
 	log << "//////////////////Test rzutowania///////////////////" << endl;
-
-	//ten test juz nie jest aktualny chyba:P
-	//bedzie trzeba przerobic
-
-	/*log << "Promise creation" << endl;
-	Promise promise;
-	log << "Future creation" << endl;
-	Future<int> future = promise.getFuture<int>();
-	future.setFunction(boost::bind(callback,_1));
-	log << "Check" << endl;
-	log << "HasException: " << future.hasException() << endl;
-	if(future.hasException())log << "Exception: " << future.getException().what() << endl;
-	log << "Progress: " << future.getProgress() << endl;
-	log << "IsDone: " << future.isDone() << endl;
-	log << "Progress set (45%)" << endl;
-	promise.setProgress(0.45);
-	log << "Second check" << endl;
-	log << "HasException: " << future.hasException() << endl;
-	if(future.hasException())log << "Exception: " << future.getException().what() << endl;
-	log << "Progress: " << future.getProgress() << endl;
-	log << "IsDone: " << future.isDone() << endl;
-	log << "Set value" << endl;
-	promise.setProgress(0.65);
-	promise.setProgress(0.89);
-	promise.setValue<int>(56);
-	log << "Third check" << endl;
-	log << "HasException: " << future.hasException() << endl;
-	if(future.hasException())log << "Exception: " << future.getException().what() << endl;
-	log << "Progress: " << future.getProgress() << endl;
-	log << "IsDone: " << future.isDone() << endl;
-	log << "getValue: " << future.getValue() << endl;
-	log << "Future copy" << endl;
-	Future<int> future2 = promise.getFuture<int>();
-	Future<int> future3= future2;
-	log << "Future: = operator" << endl;
-	log << "Future implicit conversion" << endl;
-	cout<<(future-2)<<endl;
-	cout<<(0-future)<<endl;
-	*/
+	)
 }
 
-void testProxy()
+void testSyncProxy()
 {
-	CalcProxy p(5);
-	//TODO wszystko
+	DLOG(Logger log("MAIN"));
+	DLOG(log << "//////////////////Test proxy///////////////////" << endl);
+	for(int i=0;i<3;++i)
+	{
+		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+		DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+		CalcProxy p(3);
+		DLOG(log << "//////////////////kasuje proxy...///////////////////" << endl);
+	}
+}
+
+void testSimpleInvoke()
+{
+	DLOG(Logger log("MAIN"));
+	DLOG(log << "//////////////////Test invoke///////////////////" << endl);
+
+	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	CalcProxy p(1);
+	DLOG(log << "//////////////////wolam future dodawania///////////////////" << endl);
+	struct call
+	{
+		void operator ()(double x)
+		{
+			cout << "Progress listener: " << x << endl;
+		}
+	} callback;
+	Future<int> f = p.AddInt(3,5);
+	f.setFunction(callback);
+	DLOG(log << "//////////////////czekam...///////////////////" << endl);
+	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+
+	DLOG(log << "//////////////////wynik///////////////////" << endl);
+	DLOG(log << "//////////////////" << f.getValue() << "///////////////////" << endl);
+
+	DLOG(log << "//////////////////wolam future dzielenia///////////////////" << endl);
+}
+
+void testException()
+{
+	DLOG(Logger log("MAIN"));
+	DLOG(log << "//////////////////Test exception///////////////////" << endl);
+
+	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	CalcProxy p(1);
+
+	DLOG(log << "//////////////////wolam future dzielenia///////////////////" << endl);
+	
+	Future<int> f2 = p.DivideInt(3,0);
+	DLOG(log << "//////////////////czekam...///////////////////" << endl);
+	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+
+	DLOG(log << "//////////////////wynik///////////////////" << endl);
+	try
+	{
+		f2.getValue();
+	}
+	catch(exception& e)
+	{
+		DLOG(log << "exception: " << e.what() << endl);
+	}
+	DLOG(log << "//////////////////kasuje proxy...///////////////////" << endl);
+}
+
+void testCancel()
+{
+	DLOG(Logger log("MAIN"));
+	DLOG(log << "//////////////////Test cancel///////////////////" << endl);
+
+	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	CalcProxy p(1);
+	DLOG(log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl);
+	
+	Future<int> f = p.ReallyFrickinLongAddInt(3,5);
+	DLOG(log << "//////////////////czekam...///////////////////" << endl);
+	boost::this_thread::sleep(boost::posix_time::milliseconds(3000));
+
+	f.cancelRequest();
+	DLOG(log << "//////////////////wynik///////////////////" << endl);
+	try
+	{
+		f.getValue();
+	}
+	catch(exception& e)
+	{
+		DLOG(log << "exception: " << e.what() << endl);
+	}
+}
+
+void testSharedContent()
+{
+	DLOG(Logger log("MAIN"));
+	DLOG(log << "//////////////////Test wspoldzielonego contentu///////////////////" << endl);
+
+	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	CalcProxy p(1);
+	DLOG(log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl);
+	
+	Future<int> f = p.ReallyFrickinLongAddInt(3,5);
+	DLOG(log << "//////////////////czekam...///////////////////" << endl);
+	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+
+	DLOG(log << "//////////////////przypisuje nowy future...///////////////////" << endl);
+	Future<int> f2(f);
+
+	f.cancelRequest();
+	DLOG(log << "//////////////////wynik///////////////////" << endl);
+	try
+	{
+		f.getValue();
+	}
+	catch(exception& e)
+	{
+		DLOG(log << "exception: " << e.what() << endl);
+	}
 }
 
 int main(int argc, char* argv[])
 {	
 	//testFuture();
 
-	testProxy();
-	
+	//testSyncProxy();
+
+	//testSimpleInvoke();
+
+	//testException();
+
+	//testCancel();
+
+	testSharedContent();
+
 	system("PAUSE");
 
 	return EXIT_SUCCESS;

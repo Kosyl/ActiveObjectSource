@@ -74,9 +74,8 @@ protected:
 template<class Servant, template <class U> class ServantCreationPolicy>
 class Proxy: public ServantCreationPolicy<Servant>
 {
-	mutable Logger log_;
-
 protected:
+	mutable Logger log_;
 
 	//obie skladowe musza byc sparametryzowane konkretnym servantem
 	std::vector<Scheduler<Servant>* > schedulers_;
@@ -84,9 +83,9 @@ protected:
 
 	Proxy(int numThreads=1):
 		AQ_(new ActivationQueue<Servant>()),
-		log_("PROXY",2)
+		log_("Proxy",2)
 	{
-		log_<<"constructor"<<endl;
+		DLOG(log_<<"constructor"<<endl);
 		for(int i=0;i<numThreads;++i)
 		{
 			//korzystamy z wytycznej do wygenerowania wskaznika do servanta
@@ -106,8 +105,16 @@ protected:
 
 	virtual ~Proxy()
 	{
-		log_<<"destructor"<<endl;
+		DLOG(log_<<"destructor"<<endl);
+		AQ_->End();
+
 		for_each( schedulers_.begin(), schedulers_.end(), stopScheduler);
+		DLOG(log_<<"deleting schedulers"<<endl);
+		for(unsigned int i=0;i<schedulers_.size();++i)
+		{
+			delete schedulers_[i];
+		}
+
 		//TODO dodac kasowanie schedulerow
 		delete AQ_;
 	}

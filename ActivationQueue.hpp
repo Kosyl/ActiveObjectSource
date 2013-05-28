@@ -28,17 +28,29 @@ private:
 	mutable boost::mutex mutex_;
 	boost::condition_variable cond_;
 	mutable Logger log_;
-	bool shouldIEnd;
+	volatile bool shouldIEnd_;
 public:
 
 	/*
 	* Non-parameter constructor. 
 	*/
 	ActivationQueue(void): 
-	  log_("AQ"),
-	  shouldIEnd(false)
-	  {}
-	~ActivationQueue(void) {}
+		shouldIEnd_(false),
+		log_("AQ",4)
+	{
+		DLOG(log_<<"constructor"<<endl);
+	}
+
+	~ActivationQueue(void)
+	{
+		DLOG(log_<<"destructor"<<endl);
+		while(!queue_.empty())
+		{
+			Functor<Servant>* tmp= queue_.front();
+			queue_.pop();
+			delete tmp;
+		}
+	}
 
 	/**
 	* pushes MethodRequest object to the queue
@@ -47,8 +59,10 @@ public:
 	void push(Functor<Servant>* f)
 	{ 
 		boost::mutex::scoped_lock lock(mutex_);
-		log_<<"push"<<endl;
+		DLOG(log_<<"push"<<endl);
 		queue_.push(f);
+		lock.unlock();
+		cond_.notify_one();
 	}
 
 	/**
@@ -58,11 +72,18 @@ public:
 	Functor<Servant>* pop()
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		log_<<"pop"<<endl;
-		while((!shouldIEnd) && queue_.empty()) 
+		DLOG(log_<<"pop"<<endl);
+		while((!shouldIEnd_) && queue_.empty()) 
 		{
+			DLOG(log_<<"scheduler waiting for signal"<<endl);
 			cond_.wait(lock);
 		}
+		if(shouldIEnd_)
+		{
+			DLOG(log_<<"returning null to scheduler"<<endl);
+			return NULL;
+		}
+		DLOG(log_<<"returning functor to scheduler"<<endl);
 		Functor<Servant>* tmp= queue_.front();
 		queue_.pop();
 		return tmp;
@@ -73,40 +94,38 @@ public:
 	*/
 	bool empty() const 
 	{
-        boost::mutex::scoped_lock lock(mutex_);
-		log_<<"empty"<<endl;
-        return queue_.empty();
-    }
+		boost::mutex::scoped_lock lock(mutex_);
+		DLOG(log_<<"empty (" << queue_.empty() << ")" <<endl);
+		return queue_.empty();
+	}
 
 	// to chyba wszystkie niezbedne metody, ale mozna dodac, zeby byla kolejka full-wypas
 	Functor<Servant>* front()
 	{
-        boost::mutex::scoped_lock lock(mutex_);
-		log_<<"front"<<endl;
-        return queue_.front();
-    }
+		boost::mutex::scoped_lock lock(mutex_);
+		DLOG(log_<<"front"<<endl);
+		return queue_.front();
+	}
 
 	/**
 	* @return size of the queue 
 	*/
 	unsigned int size() const 
 	{
-		log_<<"size"<<endl;
+		boost::mutex::scoped_lock lock(mutex_);
+		DLOG(log_<<"size: " << queue_.size() <<endl);
 		return queue_.size();
 	}
-	/**
-	* getter of shouldIEnd
-	*/
-	bool isShouldIEnd() const
-	{
-		return shouldIEnd;
-	}
+
 	/**
 	* setter of shouldIEnd
 	*/
-	void setShouldIEnd(const bool& s) 
+	void End() 
 	{
-		shouldIEnd=s;
+		boost::mutex::scoped_lock lock(mutex_);
+		DLOG(log_<<"End()"<<endl);
+		shouldIEnd_=true;
+		cond_.notify_all();
 	}
 
 };

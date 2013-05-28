@@ -16,26 +16,26 @@ class FutureContentCreator
 public:
 
 	FutureContentCreator():
-		log_("FC CREATOR")
+		log_("Creator",5)
 	{
-		log_ << "constructor" << endl;
+		DLOG(log_ << "constructor" << endl);
 	}
 
 	FutureContentCreator(const FutureContentCreator& rhs):
-		log_("FC CREATOR"),
+		log_("Creator"),
 		pFutureContent_(rhs.pFutureContent_)
 	{
-		log_ << "c constructor" << endl;
+		DLOG(log_ << "c constructor" << endl);
 	}
 
 	virtual ~FutureContentCreator()
 	{
-		log_ << "~FutureContentCreator()" << endl;
+		DLOG(log_ << "destructor" << endl);
 	}
 
 	void setFutureContent(boost::shared_ptr<FutureContent> futureContentPtr)
 	{
-		log_ << "setFutureContent ()" << endl;
+		DLOG(log_ << "setFutureContent ()" << endl);
 		pFutureContent_=futureContentPtr;
 	}
 
@@ -43,38 +43,38 @@ protected:
 
 	void setProgress(const double& progress)
 	{
-		log_ << "setProgress (" << progress << ")" << endl;
+		DLOG(log_ << "setProgress (" << progress << ")" << endl);
 		pFutureContent_->setProgress(progress);
 	}
 
 	void setState(const FutureState fs)
 	{
-		log_ << "setState (" << fs << ")" << endl;
+		DLOG(log_ << "setState (" << fs << ")" << endl);
 		pFutureContent_->setState(fs);
 	}
 
 	void setException(boost::exception_ptr& e)
 	{
-		log_ << "setException ()" << endl;
+		DLOG(log_ << "setException ()" << endl);
 		pFutureContent_->setException(e);
 	}
 
 	template<typename T>
 	void setValue(const T& val)
 	{
-		log_ << "setValue (" << val << ")" << endl;
+		DLOG(log_ << "setValue (" << val << ")" << endl);
 		pFutureContent_->setValue(val);
 	}
 
 	bool isCancelled()
 	{
-		log_ << "isCancelled (" << pFutureContent_->isCancelled() << ")" << endl;
+		DLOG(log_ << "isCancelled ()" << endl);
 		return pFutureContent_->isCancelled();
 	}
 
 	void setCancelled()
 	{
-		log_ << "setException ()" << endl;
+		DLOG(log_ << "setException ()" << endl);
 		//pFutureContent_->setException(boost::copy_exception(new RequestCancelledException()));
 		pFutureContent_->setState(FutureState::CANCELLED);
 	}
