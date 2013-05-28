@@ -3,6 +3,8 @@ ActiveObjectSource
 Projekt ma na celu utworzenie biblioteki pozwalającej na zdalne wywoływanie erupcji wulkanów na wyspach szczęśliwych. Umożliwia programiście zaprowadzenie pokoju na świecie w oddzielnym wątku, a także podróż dookoła świata w postaci strumienia pakietów RTP.
 
 ==================
+Ogladaj to prosze w trybie raw, widze ze zepsulo zupelnie formatowanie jak sie czyta readmie z glownej.
+
 - Jeśli chcesz, możesz spróbować podzielić te pliki na c i h, ja się boję za to brać bo nie potrafię. Jeśli chcesz to też mogę być za, ale będziesz musiała powiedzieć, które aktualnie dzielisz albo często gitować, bo jak ja coś zmienię i zacznę mergować jeden plik hpp z dwoma h i c, to się o nawiasy potnę, a o średniki zabiję
 - Zrobienie metody do robienia metod do robienia metod :)
 znaczy w Example1.hpp, żeby nie trzeba było pisać za każdym razem tego samego prawie wszędzie dla każdej jednej metody w klasie Proxy;
