@@ -135,12 +135,21 @@ void testSharedContent()
 	{
 		DLOG(log << "exception: " << e.what() << endl);
 	}
+
+	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
+	f2.cancelRequest();
+	try
+	{
+		f2.getValue();
+	}
+	catch(exception& e)
+	{
+		DLOG(log << "exception: " << e.what() << endl);
+	}
 }
 
 int main(int argc, char* argv[])
 {	
-	//testFuture();
-
 	//testSyncProxy();
 
 	//testSimpleInvoke();

@@ -26,13 +26,18 @@ private:
 
 	mutable Logger log_;
 
+	void dummyCallback(double x)
+	{}
+
 public:
 
 	Future(boost::shared_ptr<FutureContent> target):
 		pFutureContent_(target),
-		log_("Future",7)
+		log_("Future",7),
+		progressSlot_(boost::bind(&Future<T>::dummyCallback,this,_1))
 	{	
 		DLOG(log_ << "constructor" << endl);
+		progressConnection_=pFutureContent_->attachProgressObserver(progressSlot_);
 	}
 
 	Future(const Future& rhs):
@@ -40,30 +45,26 @@ public:
 		log_("Future",7)
 	{
 		DLOG(log_ << "c constructor" << endl);
-		if(progressSlot_)
-			pFutureContent_->dettachProgressObserver(progressConnection_); //odczepienie sie od starego sygnalu
+
 		setFunction(rhs.progressSlot_);
+		progressConnection_=pFutureContent_->attachProgressObserver(progressSlot_);
+		pFutureContent_->cancel(rhs.progressConnection_); //odczepienie sie od starego sygnalu
 	}
 
-	Future& operator=(const Future& rhs)
+	Future<T>& operator=(const Future& rhs)
 	{
 		DLOG(log_ << "= operator" << endl);
-		pFutureContent_= rhs.pFutureContent_;
-		if(progressSlot_)
-			pFutureContent_->dettachProgressObserver(progressConnection_); //odczepienie sie od starego sygnalu
-		setFunction(rhs.progressSlot_);
-		return *this;
+		if(&rhs==this) return *this;
+		Future<T> res(*this);
+		return res;
 	}
-
 
 	template<typename FuncType>
 	void setFunction(FuncType fun)
 	{
 		DLOG(log_ << "setFunction" << endl);
 		progressSlot_=fun;
-		if(progressSlot_)pFutureContent_->attachProgressObserver(progressSlot_);
 	}
-
 
 	T getValue() const
 	{
@@ -71,6 +72,11 @@ public:
 			throw RequestCancelledException();
 		DLOG(log_ << "getValue ()" << endl);
 		return boost::any_cast<T>(pFutureContent_->getValue());
+	}
+
+	operator T()
+	{
+		return getValue();
 	}
 
 	double getProgress() const
@@ -121,34 +127,5 @@ public:
 		DLOG(log_ << "destructor" << endl);
 	}
 };
-
-//nie wiem czy bym ryzykowal cos takiego, nie wszystko mozna dodawac
-//moze lepsze bedzie : jesli Future jest typu T, to
-//operator (T)(){return f.getValue()}
-//or sth
-template<typename T>
-T operator+ (const T& tmp, const Future<T>& f) {
-	//log_ << " T + Future " <<endl;
-	return (tmp + f.getValue());
-}
-
-template<typename T>
-T operator+ (const Future<T>& f, const T& tmp) {
-	//log_ << " T + Future " <<endl;
-	return (tmp + f.getValue());
-}
-
-template<typename T>
-T operator- (const T& tmp, const Future<T>& f) {
-	//log_ << " T + Future " <<endl;
-	return (tmp - f.getValue());
-}
-
-template<typename T>
-T operator- (const Future<T>& f, const T& tmp) {
-	//log_ << " T + Future " <<endl;
-	return (f.getValue()-tmp);
-}
-
 
 #endif

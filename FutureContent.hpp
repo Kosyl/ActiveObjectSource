@@ -107,12 +107,6 @@ public:
 		return notifyObservers_.connect(call);//sprawdzic czy ok
 	}
 
-	void dettachProgressObserver(const boost::signals::connection& progressConnection_)
-	{
-		DLOG(log_ << "dettachProgressObserver" << endl);
-		progressConnection_.disconnect();//sprawdzic czy ok
-	}
-
 	void setState(const FutureState& fs)
 	{
 		DLOG(log_ << "setState" << endl);

@@ -35,7 +35,8 @@ public:
 		{
 			boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 			setProgress(i);
-			if(isCancelled()) throw RequestCancelledException();
+			if(isCancelled()) 
+				throw RequestCancelledException();
 		}
 
 		return a+b;
