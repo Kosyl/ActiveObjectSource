@@ -21,7 +21,7 @@ class Scheduler
 {
 private:
 	ActivationQueue<Servant>* queue_;
-	Servant* servant_;
+	boost::shared_ptr<Servant> servant_;
 	boost::thread thread_;
 	mutable boost::mutex mutex_;
 	volatile bool shouldIEnd_;
@@ -32,7 +32,7 @@ public:
 	* @param q pointer to queue
 	* @param s pointer to servant
 	*/
-	Scheduler(ActivationQueue<Servant>* q, Servant* s):
+	Scheduler(ActivationQueue<Servant>* q, boost::shared_ptr<Servant> s):
 		queue_(q),
 		servant_(s),
 		shouldIEnd_(false),
@@ -46,7 +46,6 @@ public:
 	~Scheduler(void) 
 	{
 		DLOG(log_ << "destructor" << endl);
-		delete servant_;
 	}
 
 	bool stop() 

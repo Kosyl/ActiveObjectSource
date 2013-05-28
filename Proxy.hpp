@@ -21,9 +21,9 @@ public:
 	ServantFactoryCreator()
 	{}
 
-	T* getServant()
+	boost::shared_ptr<T> getServant()
 	{
-		return new T();
+		return boost::shared_ptr<T>(new T);
 	}
 
 protected:
@@ -42,12 +42,12 @@ public:
 		:pPrototype_(pObj)
 	{}
 
-	T* getServant()
+	boost::shared_ptr<T> getServant()
 	{
-		return pPrototype_ ? new T(*pPrototype_) : 0;
+		return pPrototype_ ? pPrototype_ : 0;
 	}
 
-	T* GetPrototype()
+	boost::shared_ptr<T> GetPrototype()
 	{
 		return pPrototype_;
 	}
@@ -59,14 +59,39 @@ public:
 
 private:
 
-	T* pPrototype_;
+	boost::shared_ptr<T> pPrototype_;
 
 protected:
 
 	virtual ~ServantPrototypeCreator()
 	{
-		delete pPrototype_;
+		
 	}
+};
+
+//jw singleton
+template<typename T>
+class ServantSingletonCreator
+{
+
+public:
+
+	ServantSingletonCreator()
+		:pInstance_(new T)
+	{}
+
+	boost::shared_ptr<T> getServant()
+	{
+		return pInstance_;
+	}
+
+private:
+
+	boost::shared_ptr<T> pInstance_;
+
+protected:
+
+	virtual ~ServantSingletonCreator(){}
 };
 
 //parametr: typ servanta i wytyczna jego tworzenia
@@ -89,7 +114,7 @@ protected:
 		for(int i=0;i<numThreads;++i)
 		{
 			//korzystamy z wytycznej do wygenerowania wskaznika do servanta
-			Servant* serv = getServant();
+			boost::shared_ptr<Servant> serv = getServant();
 			schedulers_.push_back(new Scheduler<Servant>(AQ_,serv));
 			//i robimy schedulera
 			

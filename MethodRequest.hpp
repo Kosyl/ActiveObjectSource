@@ -30,7 +30,7 @@ public:
 	{
 	}
 
-	virtual void execute(Servant* servant)=0;
+	virtual void execute(boost::shared_ptr<Servant> servant)=0;
 
 	//zwraca wskaznik do contentu, zeby powiedziec servantowi w co ma celowac
 	//MethodRequest uzywa tego wskaznika do ustawiania wyjatkow i setValue
@@ -68,7 +68,7 @@ public:
 	//przy czym bedzie to juz wskaznik na konkretna klase, a nie bazowa, dzieki parametrowi w szablonie
 	//wiec command bedzie szukalo funkcji we wlasciwej klasie
 	//Servant ma swoj wskaznik na ten sam content, i wewnatrz funkcji moze ustawiac progress
-	virtual void execute(Servant* servant)
+	virtual void execute(boost::shared_ptr<Servant> servant)
 	{
 		DLOG(log_ << "execute() - begin" << endl);
 		if(isReady())
@@ -76,7 +76,7 @@ public:
 			try
 			{
 				DLOG(log_ << "execute() - isReady==true, executing..." << endl);
-				content_->setValue(command_(servant));
+				content_->setValue(command_(servant.get()));
 			}
 			catch(RequestCancelledException)
 			{
