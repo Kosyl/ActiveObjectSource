@@ -1,7 +1,3 @@
-/** \file     SimpleLog.cpp
-\brief    Funkcja do wygodnego wypisywania komunikatow
-*/
-
 #ifndef _SIMPLELOG_
 #define _SIMPLELOG_
 
@@ -25,6 +21,10 @@ using namespace boost::posix_time;
 
 using namespace std;
 
+/**
+* Logger is platform-dependent. //tu napisz, co konkretnie dziala tylko na windowsie. 
+* @brief Thread-safe convenient logger to print statements.
+*/
 class Logger
 {
 

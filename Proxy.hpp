@@ -12,32 +12,49 @@
 using namespace std;
 
 //daje metode getServant ktora dziala jak fabryka
+/**
+* @brief Servant Factory.
+* @tparam T Type of servant to create.
+*/
 template<typename T>
 class ServantFactoryCreator
 {
 
 public:
-
+	/**
+	* @brief Constructor
+	*/
 	ServantFactoryCreator()
 	{}
-
+	/**
+	* @brief Returns pointer to the created Servant.
+	* @return pointer to the created Servant.
+	*/
 	boost::shared_ptr<T> getServant()
 	{
 		return boost::shared_ptr<T>(new T);
 	}
 
 protected:
-
+	/**
+	* @brief Destructor
+	*/
 	virtual ~ServantFactoryCreator(){}
 };
 
 //jw prototyp
+/**
+* @brief Servant Prototype
+* @tparam T Type of servant to create.
+*/
 template<typename T>
 class ServantPrototypeCreator
 {
 
 public:
-
+	/**
+	* @brief Constructor
+	*/
 	ServantPrototypeCreator(T* pObj = 0)
 		:pPrototype_(pObj)
 	{}
@@ -140,7 +157,6 @@ protected:
 			delete schedulers_[i];
 		}
 
-		//TODO dodac kasowanie schedulerow
 		delete AQ_;
 	}
 

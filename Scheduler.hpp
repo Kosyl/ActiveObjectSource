@@ -12,6 +12,7 @@
 
 /**
 * @brief Dequeues client request from ActivationQueue and makes Servant to execute them.
+* @tparam Servant Type of servant that executes methods. 
 */
 template<class Servant>
 class Scheduler

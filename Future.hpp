@@ -17,6 +17,7 @@ using namespace std;
 /**
 * It has a pointer to FutureContent which keeps result, progress and state of client request. 
 * @brief Future allows a client to obtain the result, progress and state of method invocation.
+* @tparam T Type of return value of method invoked.
 */
 
 template<typename T>
@@ -80,6 +81,7 @@ public:
 	/**
 	* @brief Adds slot which is called after progress or state changes.
 	* @param fun function that is supposed to be the slot.
+	* @tparam FuncType 
 	*/
 	//- dlaczego template?
 	template<typename FuncType>
@@ -95,6 +97,7 @@ public:
 	* The method waits until the request is done and then return its value.
 	* @brief Returns result of client request.
 	* @return result of the client invocation.
+	* @throw RequestCancelledException if pFutureContent_ doesn not exist.
 	*/
 	T getValue() const
 	{
@@ -113,6 +116,7 @@ public:
 	/**
 	* @brief Returns progress of client request. 
 	* @return progress of client request.
+	* @throw RequestCancelledException if pFutureContent_ does not exist.
 	*/
 	double getProgress() const
 	{
@@ -122,9 +126,9 @@ public:
 		return pFutureContent_->getProgress();
 	}
 	/**
-	* It throws RequestCancelledException when there is no FutureContent.
 	* @brief Returns exception of FutureContent.
 	* @return exception of FutureContent
+	* @throw RequestCancelledException if pFutureContent_ does not exist.
 	*/
 	//--??
 	exception getException() const
@@ -135,9 +139,9 @@ public:
 		return pFutureContent_->getException();
 	}
 	/**
-	* It throws RequestCancelledException when there is no FutureContent.
 	* @brief Test whether there is an exception in the client request.
 	* @return whether an exception occured in the client request.
+	* @throw RequestCancelledException if pFutureContent_ does not exist.
 	*/
 	bool hasException() const
 	{
@@ -147,9 +151,9 @@ public:
 		return pFutureContent_->hasException();
 	}
 	/**
-	* It throws RequestCancelledException when there is no FutureContent.
 	* @brief Says whether the client request is done.
 	* @return whether the request is done.
+	* @throw RequestCancelledException if pFutureContent_ does not exist.
 	*/
 	bool isDone() const
 	{

@@ -10,6 +10,7 @@
 /**
 * ActivationQueue is created by Proxy that pushes Functors into it. Functors are dequeued by Schedulers.
 * @brief A thread-safe queue of Functor objects. 
+* @tparam Servant Type of Servant which executes method
 */
 
 //sparametryzowalem ja, bedzie potrzebna informacja o konkretnym servancie
