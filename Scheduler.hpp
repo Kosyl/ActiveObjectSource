@@ -10,27 +10,45 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
-//W BUDOWIE//
 /**
-* Scheduler responsible for managing method queueing and executing.
-* @authors Michal Kosyl Marta Kuzak
-* @version 1.0
+* @brief Dequeues client request from ActivationQueue and makes Servant to execute them.
 */
 template<class Servant>
 class Scheduler
 {
 private:
+	/**
+	* Pointer to the ActivationQueue Scheduler looks at.
+	*/
 	ActivationQueue<Servant>* queue_;
+	/**
+	* Pointer to servant which executes method.
+	*/
 	boost::shared_ptr<Servant> servant_;
+	/**
+	* Thread of Scheduler.
+	*/
 	boost::thread thread_;
+	/**
+	*
+	*/
 	mutable boost::mutex mutex_;
+	/**
+	* Flag that indicates whether ActivationQueue is to be destroyed.
+	* @see bool stop()
+	*/
 	volatile bool shouldIEnd_;
+	/**
+	* Logger
+	*/
 	mutable Logger log_;
 public:
 
-	/*
-	* @param q pointer to queue
-	* @param s pointer to servant
+	/**
+	* Constructs Scheduler and starts its thread.
+	* @brief Constructor
+	* @param q pointer to ActivationQueue
+	* @param s pointer to Servant
 	*/
 	Scheduler(ActivationQueue<Servant>* q, boost::shared_ptr<Servant> s):
 		queue_(q),
@@ -42,13 +60,18 @@ public:
 	{
 		DLOG(log_ << "constructor" << endl);
 	}
-
+	/**
+	* @brief Destructor.
+	*/
 	~Scheduler(void) 
 	{
 		DLOG(log_ << "destructor" << endl);
 	}
-
-	bool stop() 
+	/**
+	* Sets shouldIEnd to true and waits for its thread end.
+	* @return true :)
+	*/
+	bool stop()  //yy czemu tu by³ bool?
 	{ 
 		shouldIEnd_=true;
 		DLOG(log_ << "stop() - joining" << endl);
@@ -58,7 +81,10 @@ public:
 	}
 
 private:
-
+	/**
+	* It is broken when request is NULL or shouldIEnd is set to true.
+	* @brief Dequeues method request from ActivationQueue and makes Servant execute it.
+	*/
 	void dequeue()  
 	{
 		boost::mutex::scoped_lock lock(mutex_);
@@ -83,7 +109,10 @@ private:
 		//else fun->getFutureContent()->setException(boost::copy_exception(new NullCommandException));
 		delete fun;
 	}
-
+	/**
+	* As long as Scheduler exists it dequeues requests from ActivationQueue.
+	* @brief method of the Scheduler thread.
+	*/
 	void run() 
 	{ 
 		DLOG(log_ << "run" <<endl);
@@ -95,6 +124,5 @@ private:
 	}	
 };
 
-//Scheduler::
 
 #endif
