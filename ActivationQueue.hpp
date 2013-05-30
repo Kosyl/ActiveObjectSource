@@ -8,9 +8,8 @@
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 /**
-* A queue that is managed by Scheduler.
-* @authors Michal Kosyl Marta Kuzak
-* @version 1.0
+* ActivationQueue is created by Proxy that pushes Functors into it. Functors are dequeued by Schedulers.
+* @brief A thread-safe queue of Functor objects. 
 */
 
 //sparametryzowalem ja, bedzie potrzebna informacja o konkretnym servancie
@@ -22,16 +21,21 @@ class ActivationQueue
 
 private:
 	/**
-	* queue for client requests
+	* queue for client requests (pointers to Functor objects)
 	*/
 	std::queue <Functor<Servant>* > queue_; 
+	// - opisywanie mutexow itp chyba by by³o przesada :D
 	mutable boost::mutex mutex_;
 	boost::condition_variable cond_;
 	mutable Logger log_;
+	/**
+	* Flag that indicates whether ActivationQueue is to be destroyed.
+	* @see void End()
+	*/
 	volatile bool shouldIEnd_;
 public:
 
-	/*
+	/**
 	* Non-parameter constructor. 
 	*/
 	ActivationQueue(void): 
@@ -40,7 +44,9 @@ public:
 	{
 		DLOG(log_<<"constructor"<<endl);
 	}
-
+	/**
+	* Destructor
+	*/
 	~ActivationQueue(void)
 	{
 		DLOG(log_<<"destructor"<<endl);
@@ -53,8 +59,9 @@ public:
 	}
 
 	/**
-	* pushes MethodRequest object to the queue
-	* @param mr MethodRequest object to be pushed into queue
+	* After that it notifies one thread about the event.
+	* @brief pushes Functor into the queue.
+	* @param mr Functor to be pushed into ActivationQueue
 	*/
 	void push(Functor<Servant>* f)
 	{ 
@@ -66,8 +73,9 @@ public:
 	}
 
 	/**
-	* @brief popping MethodRequest from the queue
-	* @return MethodRequest object that is popped
+	* If the queue is empty it waits for any Functor pushed into the queue.
+	* @brief pops Functor pointer from the queue.
+	* @return pointer Functor object that is popped.
 	*/
 	Functor<Servant>* pop()
 	{
@@ -90,7 +98,8 @@ public:
 	}
 
 	/**
-	* @return whether the queue is empty
+	* Test whether the queue is empty.
+	* @return whether the queue is empty.
 	*/
 	bool empty() const 
 	{
@@ -99,7 +108,10 @@ public:
 		return queue_.empty();
 	}
 
-	// to chyba wszystkie niezbedne metody, ale mozna dodac, zeby byla kolejka full-wypas
+	/**
+	* Access next element.
+	* @return pointer to the next element in the queue.
+	*/
 	Functor<Servant>* front()
 	{
 		boost::mutex::scoped_lock lock(mutex_);
@@ -108,7 +120,8 @@ public:
 	}
 
 	/**
-	* @return size of the queue 
+	* Returns size of the queue.
+	* @return number of elements in the queue. 
 	*/
 	unsigned int size() const 
 	{
@@ -118,7 +131,7 @@ public:
 	}
 
 	/**
-	* setter of shouldIEnd
+	* Makes ActivationQueue stop waiting for next Functor in the queue.
 	*/
 	void End() 
 	{

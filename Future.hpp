@@ -14,14 +14,27 @@ using namespace std;
 
 //todo: konwersja miedzy future
 //i miedzy roznymi typami future, czyli troche templatek
+/**
+* It has a pointer to FutureContent which keeps result, progress and state of client request. 
+* @brief Future allows a client to obtain the result, progress and state of method invocation.
+*/
+
 template<typename T>
 class Future
 {
 
 private:
-
+	/**
+	* Pointer to FutureContent of client request.
+	*/
 	boost::shared_ptr<FutureContent> pFutureContent_;
+	/**
+	* 
+	*/
 	boost::function<void(double)> progressSlot_;
+	/**
+	* 
+	*/
 	boost::signals::connection progressConnection_;
 
 	mutable Logger log_;
@@ -30,7 +43,10 @@ private:
 	{}
 
 public:
-
+	/**
+	* Constructs Future with FutureContent.
+	* @param target Pointer to FutureContent that keeps info about client request.
+	*/
 	Future(boost::shared_ptr<FutureContent> target):
 		pFutureContent_(target),
 		log_("Future",7),
@@ -39,7 +55,10 @@ public:
 		DLOG(log_ << "constructor" << endl);
 		progressConnection_=pFutureContent_->attachProgressObserver(progressSlot_);
 	}
-
+	/**
+	* Construct copy of other Future.
+	* @brief Copy constructor.
+	*/ 
 	Future(const Future& rhs):
 		pFutureContent_(rhs.pFutureContent_),
 		log_("Future",7)
@@ -50,15 +69,19 @@ public:
 		progressConnection_=pFutureContent_->attachProgressObserver(progressSlot_);
 		pFutureContent_->cancel(rhs.progressConnection_); //odczepienie sie od starego sygnalu
 	}
-
-	Future<T>& operator=(const Future& rhs)
+	/**
+	* @brief Destructor
+	*/
+	~Future()
 	{
-		DLOG(log_ << "= operator" << endl);
-		if(&rhs==this) return *this;
-		Future<T> res(*this);
-		return res;
+		DLOG(log_ << "destructor" << endl);
 	}
-
+	
+	/**
+	* @brief Adds slot which is called after progress or state changes.
+	* @param fun function that is supposed to be the slot.
+	*/
+	//- dlaczego template?
 	template<typename FuncType>
 	void setFunction(FuncType fun)
 	{
@@ -68,7 +91,11 @@ public:
 		pFutureContent_->cancel(progressConnection_);
 		progressConnection_=tmp;
 	}
-
+	/**
+	* The method waits until the request is done and then return its value.
+	* @brief Returns result of client request.
+	* @return result of the client invocation.
+	*/
 	T getValue() const
 	{
 		if(!pFutureContent_)
@@ -76,12 +103,17 @@ public:
 		DLOG(log_ << "getValue ()" << endl);
 		return boost::any_cast<T>(pFutureContent_->getValue());
 	}
-
+	/**
+	* @brief Converts value of method request into the T value.
+	*/
 	operator T()
 	{
 		return getValue();
 	}
-
+	/**
+	* @brief Returns progress of client request. 
+	* @return progress of client request.
+	*/
 	double getProgress() const
 	{
 		if(!pFutureContent_)
@@ -89,7 +121,12 @@ public:
 		DLOG(log_ << "getProgress (" << pFutureContent_->getProgress() << ")" << endl);
 		return pFutureContent_->getProgress();
 	}
-
+	/**
+	* It throws RequestCancelledException when there is no FutureContent.
+	* @brief Returns exception of FutureContent.
+	* @return exception of FutureContent
+	*/
+	//--??
 	exception getException() const
 	{
 		if(!pFutureContent_)
@@ -97,7 +134,11 @@ public:
 		DLOG(log_ << "getException (" << (pFutureContent_->getException().what()) << ")" << endl);
 		return pFutureContent_->getException();
 	}
-
+	/**
+	* It throws RequestCancelledException when there is no FutureContent.
+	* @brief Test whether there is an exception in the client request.
+	* @return whether an exception occured in the client request.
+	*/
 	bool hasException() const
 	{
 		if(!pFutureContent_)
@@ -105,7 +146,11 @@ public:
 		DLOG(log_ << "hasException (" << pFutureContent_->hasException() << ")" << endl);
 		return pFutureContent_->hasException();
 	}
-
+	/**
+	* It throws RequestCancelledException when there is no FutureContent.
+	* @brief Says whether the client request is done.
+	* @return whether the request is done.
+	*/
 	bool isDone() const
 	{
 		if(!pFutureContent_)
@@ -113,7 +158,10 @@ public:
 		DLOG(log_ << "isDone (" << pFutureContent_->isDone() << ")" << endl);
 		return pFutureContent_->isDone();
 	}
-
+	/**
+	* Disconnets slot function and unpins from the FutureContent.
+	* @brief cancel client request.
+	*/
 	void cancelRequest()
 	{
 		DLOG(log_ << "cancelRequest" << endl);
@@ -124,10 +172,16 @@ public:
 		}
 		pFutureContent_=NULL;
 	}
-
-	~Future()
+	/**
+	* Assigns other to this Future and returns a reference to this Future.
+	* @brief Assignment operator.
+	*/ 
+	Future<T>& operator=(const Future& rhs)
 	{
-		DLOG(log_ << "destructor" << endl);
+		DLOG(log_ << "= operator" << endl);
+		if(&rhs==this) return *this;
+		Future<T> res(*this);
+		return res;
 	}
 };
 
