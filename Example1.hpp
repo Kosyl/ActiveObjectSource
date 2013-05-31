@@ -47,7 +47,7 @@ public:
 	{
 		for(double i=0;i<1.0;i+=0.5)
 		{
-			boost::this_thread::sleep(boost::posix_time::milliseconds(3500));
+			boost::this_thread::sleep(boost::posix_time::milliseconds(1500));
 			setProgress(i);
 			if(isCancelled()) 
 				throw RequestCancelledException();
@@ -103,7 +103,7 @@ public:
 		boost::mutex::scoped_lock lock(mutex_);
 		for(double i=0;i<1.0;i+=0.5)
 		{
-			boost::this_thread::sleep(boost::posix_time::milliseconds(3500));
+			boost::this_thread::sleep(boost::posix_time::milliseconds(1500));
 			setProgress(i);
 			if(isCancelled()) 
 				throw RequestCancelledException();

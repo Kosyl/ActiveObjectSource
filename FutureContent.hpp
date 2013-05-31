@@ -151,12 +151,12 @@ public:
 	void cancel(boost::signals::connection c)
 	{
 		sLock lock(mutex_);
-		DLOG(log_ << "cancel" << endl);
+		
 		if(c.connected())
 		{
 			c.disconnect();
 		}
-
+		DLOG(log_ << "cancel, remaining observers: " << notifyObservers_.num_slots() << endl);
 		if(notifyObservers_.empty())
 		{
 			state_ = FutureState::CANCELLED;

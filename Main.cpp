@@ -1,7 +1,6 @@
 #ifndef _MAIN_
 #define _MAIN_
 
-//#include "Command.hpp"
 #include "Future.hpp"
 #include "Example1.hpp"
 #include "SimpleLog.hpp"
@@ -96,7 +95,7 @@ void testCancel()
 	
 	Future<int> f = p.ReallyFrickinLongAddInt(3,5);
 	DLOG(log << "//////////////////czekam...///////////////////" << endl);
-	boost::this_thread::sleep(boost::posix_time::milliseconds(3000));
+	boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
 
 	f.cancelRequest();
 	DLOG(log << "//////////////////wynik///////////////////" << endl);
@@ -235,14 +234,10 @@ void testSingletonServant()
 	SyncCalcProxy p(3);
 	DLOG(log << "//////////////////wolam future dodawania///////////////////" << endl);
 	
-	Future<int> f1 = p.ReallyFrickinLongAddInt(30,50);
-	Future<int> f2 = p.ReallyFrickinLongAddInt(34,51);
-	Future<int> f3 = p.ReallyFrickinLongAddInt(3,58);
-	Future<int> f4 = p.ReallyFrickinLongAddInt(1,234);
-	Future<int> f5 = p.ReallyFrickinLongAddInt(23,523);
-	Future<int> f6 = p.ReallyFrickinLongAddInt(43,34);
-	Future<int> f7 = p.ReallyFrickinLongAddInt(100,34);
-	Future<int> f8 = p.ReallyFrickinLongAddInt(2,34);
+	Future<int> f1 = p.SlowAddInt(30,50);
+	Future<int> f2 = p.SlowAddInt(34,51);
+	Future<int> f3 = p.SlowAddInt(3,58);
+	Future<int> f4 = p.SlowAddInt(1,234);
 
 	DLOG(log << "//////////////////czekamy...///////////////////" << endl);
 	
@@ -250,10 +245,57 @@ void testSingletonServant()
 	DLOG(log << "f2: " << f2.getValue() << endl);
 	DLOG(log << "f3: " << f3.getValue() << endl);
 	DLOG(log << "f4: " << f4.getValue() << endl);
-	DLOG(log << "f5: " << f5.getValue() << endl);
-	DLOG(log << "f6: " << f6.getValue() << endl);
-	DLOG(log << "f7: " << f7.getValue() << endl);
-	DLOG(log << "f8: " << f8.getValue() << endl);
+}
+
+void testPersistantFuture()
+{
+	DLOG(Logger log("MAIN"));
+	DLOG(log << "//////////////////Test dlugotrwalego future///////////////////" << endl);
+
+	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	CalcProxy* p = new CalcProxy(1);
+	DLOG(log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl);
+	
+	Future<int> f = p->ReallyFrickinLongAddInt(3,5);
+
+	DLOG(log << "//////////////////czekam na wartosc w trybie blokujacym///////////////////" << endl);
+	try
+	{
+		DLOG(log << "//////////////////" << f.getValue() << "///////////////////" << endl);
+	}
+	catch(exception& e)
+	{
+		DLOG(log << "exception: " << e.what() << endl);
+	}
+
+	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
+
+	DLOG(log << "//////////////////kasuje proxy///////////////////" << endl);
+	delete p;
+
+	boost::this_thread::sleep(boost::posix_time::milliseconds(3000));
+
+	DLOG(log << "//////////////////Ponowna proba odczytania wartosci///////////////////" << endl);
+	try
+	{
+		DLOG(log << "//////////////////" << f.getValue() << "///////////////////" << endl);
+	}
+	catch(exception& e)
+	{
+		DLOG(log << "exception: " << e.what() << endl);
+	}
+
+	DLOG(log << "//////////////////cancel powinien skasowac content//////////////////" << endl);
+	f.cancelRequest();
+	try
+	{
+		DLOG(log << "//////////////////" << f.getValue() << "///////////////////" << endl);
+	}
+	catch(exception& e)
+	{
+		DLOG(log << "exception: " << e.what() << endl);
+	}
+	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 }
 
 int main(int argc, char* argv[])
@@ -268,12 +310,14 @@ int main(int argc, char* argv[])
 
 	//testSharedContent();
 
-	testSwapCallback();
+	//testSwapCallback();
 
 	//testManyThreads();
 
 	//testSingletonServant();
 
+	testPersistantFuture();
+	
 	system("PAUSE");
 
 	return EXIT_SUCCESS;

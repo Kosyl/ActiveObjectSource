@@ -106,6 +106,7 @@ private:
 
 			//tu wywolanie wlasciej funkcji; przechwytywanie wyjatkow jest w MethodRequest
 			fun->execute(servant_);
+			
 		}
 		//else fun->getFutureContent()->setException(boost::copy_exception(new NullCommandException));
 		delete fun;

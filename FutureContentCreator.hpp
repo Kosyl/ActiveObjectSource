@@ -3,6 +3,7 @@
 
 #include "Future.hpp"
 #include <boost\shared_ptr.hpp>
+#include <boost\weak_ptr.hpp>
 #include <boost\exception_ptr.hpp>
 #include "SimpleLog.hpp"
 #include "FutureContent.hpp"
@@ -53,6 +54,12 @@ public:
 		pFutureContent_=futureContentPtr;
 	}
 
+	/*void resetContentPointer()
+	{
+		DLOG(log_ << "setFutureContent ()" << endl);
+		pFutureContent_.reset();
+	}*/
+
 protected:
 	/**
 	* @brief Sets new progress value.
@@ -61,7 +68,7 @@ protected:
 	void setProgress(const double& progress)
 	{
 		DLOG(log_ << "setProgress (" << progress << ")" << endl);
-		pFutureContent_->setProgress(progress);
+		pFutureContent_.lock()->setProgress(progress);
 	}
 	/**
 	* @brief Sets state of the method invocation.
@@ -70,7 +77,7 @@ protected:
 	void setState(const FutureState fs)
 	{
 		DLOG(log_ << "setState (" << fs << ")" << endl);
-		pFutureContent_->setState(fs);
+		pFutureContent_.lock()->setState(fs);
 	}
 	/**
 	* @brief Sets exception of the method invocation.
@@ -79,7 +86,7 @@ protected:
 	void setException(boost::exception_ptr& e)
 	{
 		DLOG(log_ << "setException ()" << endl);
-		pFutureContent_->setException(e);
+		pFutureContent_.lock()->setException(e);
 	}
 	/**
 	* @brief Sets value of method request.
@@ -89,7 +96,7 @@ protected:
 	void setValue(const T& val)
 	{
 		DLOG(log_ << "setValue (" << val << ")" << endl);
-		pFutureContent_->setValue(val);
+		pFutureContent_.lock()->setValue(val);
 	}
 	/**
 	* @brief Indicates whether the invocation is cancelled.
@@ -98,7 +105,7 @@ protected:
 	bool isCancelled()
 	{
 		DLOG(log_ << "isCancelled ()" << endl);
-		return pFutureContent_->isCancelled();
+		return pFutureContent_.lock()->isCancelled();
 	}
 	/**
 	* @brief Sets FutureContent state to FutureState::CANCELLED
@@ -107,7 +114,7 @@ protected:
 	{
 		DLOG(log_ << "setException ()" << endl);
 		//pFutureContent_->setException(boost::copy_exception(new RequestCancelledException()));
-		pFutureContent_->setState(FutureState::CANCELLED);
+		pFutureContent_.lock()->setState(FutureState::CANCELLED);
 	}
 
 	Logger log_;
@@ -117,7 +124,7 @@ private:
 	* Pointer to FutureContent to be written to.
 	*/
 	//-jak to napisaæ po angielskiemu?
-	boost::shared_ptr<FutureContent> pFutureContent_;
+	boost::weak_ptr<FutureContent> pFutureContent_;
 };
 
 #endif

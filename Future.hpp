@@ -66,7 +66,7 @@ public:
 	{
 		DLOG(log_ << "c constructor" << endl);
 
-		setFunction(rhs.progressSlot_);
+		progressSlot_=rhs.progressSlot_;
 		progressConnection_=pFutureContent_->attachProgressObserver(progressSlot_);
 		pFutureContent_->cancel(rhs.progressConnection_); //odczepienie sie od starego sygnalu
 	}
@@ -76,6 +76,7 @@ public:
 	~Future()
 	{
 		DLOG(log_ << "destructor" << endl);
+		if(pFutureContent_)pFutureContent_->cancel(progressConnection_);
 	}
 	
 	/**
@@ -84,6 +85,7 @@ public:
 	* @tparam FuncType 
 	*/
 	//- dlaczego template?
+	//- ¿eby dzia³a³ inny function, b::bind, wskaŸnik na funkcjê albo obiekt z operatorem ()
 	template<typename FuncType>
 	void setFunction(FuncType fun)
 	{
