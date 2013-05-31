@@ -298,6 +298,30 @@ void testPersistantFuture()
 	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 }
 
+void testManyMethods()
+{
+	DLOG(Logger log("MAIN"));
+	DLOG(log << "//////////////////Test servant-singleton///////////////////" << endl);
+
+	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	CalcProxy p(2);
+	DLOG(log << "//////////////////wolam future dodawania///////////////////" << endl);
+	
+	Future<int> f1 = p.AddInt(30,50);
+	Future<int> f2 = p.SlowAddInt(34,51);
+	Future<int> f3 = p.ReallyFrickinLongAddInt(3,58);
+	Future<int> f4 = p.DivideInt(234,2);
+	Future<double> f5 = p.DivideDouble(12312.23,5434.99);
+
+	DLOG(log << "//////////////////czekamy...///////////////////" << endl);
+	
+	DLOG(log << "f1: " << f1.getValue() << endl);
+	DLOG(log << "f2: " << f2.getValue() << endl);
+	DLOG(log << "f3: " << f3.getValue() << endl);
+	DLOG(log << "f4: " << f4.getValue() << endl);
+	DLOG(log << "f5: " << f5.getValue() << endl);
+}
+
 int main(int argc, char* argv[])
 {	
 	//testSyncProxy();
@@ -316,8 +340,10 @@ int main(int argc, char* argv[])
 
 	//testSingletonServant();
 
-	testPersistantFuture();
+	//testPersistantFuture();
 	
+	testManyMethods();
+
 	system("PAUSE");
 
 	return EXIT_SUCCESS;

@@ -64,6 +64,15 @@ public:
 		setProgress(0.8);
 		return a/b;
 	}
+	
+	double DivideDouble(double a, double b) throw(...)
+	{
+		setProgress(0.2);
+		if (b == 0.0)
+			throw std::overflow_error("Divide by zero exception");
+		setProgress(0.8);
+		return a/b;
+	}
 };
 
 class SyncCalcServant: public FutureContentCreator
@@ -121,6 +130,7 @@ public:
 		setProgress(0.8);
 		return a/b;
 	}
+
 };
 
 //proxy do servanta
@@ -138,83 +148,27 @@ public:
 	//bardzo mozliwe ze da sie to zautomatyzowac
 	Future<int> AddInt(int a, int b)
 	{
-		//pusty content
-		DLOG(log_ << "Add() - content creation" << endl);
-		boost::shared_ptr<FutureContent> pContent(new FutureContent());
-
-		//future do contentu
-		DLOG(log_ << "Add() - future creation" << endl);
-		Future<int> fut(pContent);
-
-		//zbindowanie odpowiedniej metody, pozostawienie argumentu na wskaznik do konkretnego servanta
-		DLOG(log_ << "Add() - binding" << endl);
-		boost::function<int(CalcServant*)> f = boost::bind(&CalcServant::AddInt,_1,a,b);
-
-		//utworzenie funktora
-		//mowimy mu, zeby zwracal int i ze klasa servanta to CalcServant
-		DLOG(log_ << "Add() - request creation" << endl);
-		MethodRequest<int,CalcServant>* request = new MethodRequest<int,CalcServant>(f,pContent);
-
-		//bierzemy wskaznik do klasy bazowej, zeby moc go przechowac w kolejce
-		Functor<CalcServant>* functor = request;
-
-		//czysta magia
-		DLOG(log_ << "Add() - pushing into AQ" << endl);
-		AQ_->push(functor);
-
-		DLOG(log_ << "Add() - returning future" << endl);
-		return fut;
+		return enqueue<int>(boost::bind(&CalcServant::AddInt,_1,a,b));
 	}
 
 	Future<int> DivideInt(int a, int b)
 	{
-		DLOG(log_ << "Add() - content creation" << endl);
-		boost::shared_ptr<FutureContent> pContent(new FutureContent());
-		DLOG(log_ << "Add() - future creation" << endl);
-		Future<int> fut(pContent);
-		DLOG(log_ << "Add() - binding" << endl);
-		boost::function<int(CalcServant*)> f = boost::bind(&CalcServant::DivideInt,_1,a,b);
-		DLOG(log_ << "Add() - request creation" << endl);
-		MethodRequest<int,CalcServant>* request = new MethodRequest<int,CalcServant>(f,pContent);
-		Functor<CalcServant>* functor = request;
-		DLOG(log_ << "Add() - pushing into AQ" << endl);
-		AQ_->push(functor);
-		DLOG(log_ << "Add() - returning future" << endl);
-		return fut;
+		return enqueue<int>(boost::bind(&CalcServant::DivideInt,_1,a,b));
 	}
 
 	Future<int> ReallyFrickinLongAddInt(int a, int b)
 	{
-		DLOG(log_ << "Add() - content creation" << endl);
-		boost::shared_ptr<FutureContent> pContent(new FutureContent());
-		DLOG(log_ << "Add() - future creation" << endl);
-		Future<int> fut(pContent);
-		DLOG(log_ << "Add() - binding" << endl);
-		boost::function<int(CalcServant*)> f = boost::bind(&CalcServant::ReallyFrickinLongAddInt,_1,a,b);
-		DLOG(log_ << "Add() - request creation" << endl);
-		MethodRequest<int,CalcServant>* request = new MethodRequest<int,CalcServant>(f,pContent);
-		Functor<CalcServant>* functor = request;
-		DLOG(log_ << "Add() - pushing into AQ" << endl);
-		AQ_->push(functor);
-		DLOG(log_ << "Add() - returning future" << endl);
-		return fut;
+		return enqueue<int>(boost::bind(&CalcServant::ReallyFrickinLongAddInt,_1,a,b));
 	}
 
 	Future<int> SlowAddInt(int a, int b)
 	{
-		DLOG(log_ << "Add() - content creation" << endl);
-		boost::shared_ptr<FutureContent> pContent(new FutureContent());
-		DLOG(log_ << "Add() - future creation" << endl);
-		Future<int> fut(pContent);
-		DLOG(log_ << "Add() - binding" << endl);
-		boost::function<int(CalcServant*)> f = boost::bind(&CalcServant::SlowAddInt,_1,a,b);
-		DLOG(log_ << "Add() - request creation" << endl);
-		MethodRequest<int,CalcServant>* request = new MethodRequest<int,CalcServant>(f,pContent);
-		Functor<CalcServant>* functor = request;
-		DLOG(log_ << "Add() - pushing into AQ" << endl);
-		AQ_->push(functor);
-		DLOG(log_ << "Add() - returning future" << endl);
-		return fut;
+		return enqueue<int>(boost::bind(&CalcServant::SlowAddInt,_1,a,b));
+	}
+
+	Future<double> DivideDouble(double a, double b)
+	{
+		return enqueue<double>(boost::bind(&CalcServant::DivideDouble,_1,a,b));
 	}
 };
 
@@ -231,83 +185,22 @@ public:
 	//bardzo mozliwe ze da sie to zautomatyzowac
 	Future<int> AddInt(int a, int b)
 	{
-		//pusty content
-		DLOG(log_ << "Add() - content creation" << endl);
-		boost::shared_ptr<FutureContent> pContent(new FutureContent());
-
-		//future do contentu
-		DLOG(log_ << "Add() - future creation" << endl);
-		Future<int> fut(pContent);
-
-		//zbindowanie odpowiedniej metody, pozostawienie argumentu na wskaznik do konkretnego servanta
-		DLOG(log_ << "Add() - binding" << endl);
-		boost::function<int(SyncCalcServant*)> f = boost::bind(&SyncCalcServant::AddInt,_1,a,b);
-
-		//utworzenie funktora
-		//mowimy mu, zeby zwracal int i ze klasa servanta to CalcServant
-		DLOG(log_ << "Add() - request creation" << endl);
-		MethodRequest<int,SyncCalcServant>* request = new MethodRequest<int,SyncCalcServant>(f,pContent);
-
-		//bierzemy wskaznik do klasy bazowej, zeby moc go przechowac w kolejce
-		Functor<SyncCalcServant>* functor = request;
-
-		//czysta magia
-		DLOG(log_ << "Add() - pushing into AQ" << endl);
-		AQ_->push(functor);
-
-		DLOG(log_ << "Add() - returning future" << endl);
-		return fut;
+		return enqueue<int>(boost::bind(&SyncCalcServant::AddInt,_1,a,b));
 	}
 
 	Future<int> DivideInt(int a, int b)
 	{
-		DLOG(log_ << "Add() - content creation" << endl);
-		boost::shared_ptr<FutureContent> pContent(new FutureContent());
-		DLOG(log_ << "Add() - future creation" << endl);
-		Future<int> fut(pContent);
-		DLOG(log_ << "Add() - binding" << endl);
-		boost::function<int(SyncCalcServant*)> f = boost::bind(&SyncCalcServant::DivideInt,_1,a,b);
-		DLOG(log_ << "Add() - request creation" << endl);
-		MethodRequest<int,SyncCalcServant>* request = new MethodRequest<int,SyncCalcServant>(f,pContent);
-		Functor<SyncCalcServant>* functor = request;
-		DLOG(log_ << "Add() - pushing into AQ" << endl);
-		AQ_->push(functor);
-		DLOG(log_ << "Add() - returning future" << endl);
-		return fut;
+		return enqueue<int>(boost::bind(&SyncCalcServant::DivideInt,_1,a,b));
 	}
 
 	Future<int> ReallyFrickinLongAddInt(int a, int b)
 	{
-		DLOG(log_ << "Add() - content creation" << endl);
-		boost::shared_ptr<FutureContent> pContent(new FutureContent());
-		DLOG(log_ << "Add() - future creation" << endl);
-		Future<int> fut(pContent);
-		DLOG(log_ << "Add() - binding" << endl);
-		boost::function<int(SyncCalcServant*)> f = boost::bind(&SyncCalcServant::ReallyFrickinLongAddInt,_1,a,b);
-		DLOG(log_ << "Add() - request creation" << endl);
-		MethodRequest<int,SyncCalcServant>* request = new MethodRequest<int,SyncCalcServant>(f,pContent);
-		Functor<SyncCalcServant>* functor = request;
-		DLOG(log_ << "Add() - pushing into AQ" << endl);
-		AQ_->push(functor);
-		DLOG(log_ << "Add() - returning future" << endl);
-		return fut;
+		return enqueue<int>(boost::bind(&SyncCalcServant::ReallyFrickinLongAddInt,_1,a,b));
 	}
 
 	Future<int> SlowAddInt(int a, int b)
 	{
-		DLOG(log_ << "Add() - content creation" << endl);
-		boost::shared_ptr<FutureContent> pContent(new FutureContent());
-		DLOG(log_ << "Add() - future creation" << endl);
-		Future<int> fut(pContent);
-		DLOG(log_ << "Add() - binding" << endl);
-		boost::function<int(SyncCalcServant*)> f = boost::bind(&SyncCalcServant::SlowAddInt,_1,a,b);
-		DLOG(log_ << "Add() - request creation" << endl);
-		MethodRequest<int,SyncCalcServant>* request = new MethodRequest<int,SyncCalcServant>(f,pContent);
-		Functor<SyncCalcServant>* functor = request;
-		DLOG(log_ << "Add() - pushing into AQ" << endl);
-		AQ_->push(functor);
-		DLOG(log_ << "Add() - returning future" << endl);
-		return fut;
+		return enqueue<int>(boost::bind(&SyncCalcServant::SlowAddInt,_1,a,b));
 	}
 };
 
