@@ -163,19 +163,26 @@ protected:
 	template<typename T>
 	Future<T> enqueue(boost::function<T(Servant*)> command)
 	{
-		DLOG(log_ << "enqueue() - content creation" << endl);
+		DLOG(log_ << "enqueue()" << endl);
 		boost::shared_ptr<FutureContent> pContent(new FutureContent());
-		DLOG(log_ << "enqueue() - future creation" << endl);
 		Future<T> fut(pContent);
-		DLOG(log_ << "enqueue() - request creation" << endl);
 		MethodRequest<T,Servant>* request = new MethodRequest<T,Servant>(command,pContent);
 		Functor<Servant>* functor = request;
-		DLOG(log_ << "enqueue() - pushing into AQ" << endl);
 		AQ_->push(functor);
-		DLOG(log_ << "enqueue() - returning future" << endl);
 		return fut;
 	}
 
+	template<typename T>
+	Future<T> enqueue(boost::function<T(Servant*)> command, boost::function<bool(Servant*)> guard)
+	{
+		DLOG(log_ << "enqueue()" << endl);
+		boost::shared_ptr<FutureContent> pContent(new FutureContent());
+		Future<T> fut(pContent);
+		MethodRequest<T,Servant>* request = new MethodRequest<T,Servant>(command,pContent, guard);
+		Functor<Servant>* functor = request;
+		AQ_->push(functor);
+		return fut;
+	}
 };
 
 #endif

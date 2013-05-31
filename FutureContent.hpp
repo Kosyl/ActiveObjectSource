@@ -174,6 +174,12 @@ public:
 		DLOG(log_ << "isCancelled (" << (state_==FutureState::CANCELLED?true:false) << ")" << endl);
 		return (state_==FutureState::CANCELLED?true:false);
 	}
+
+	int getNumObservers() const
+	{
+		return notifyObservers_.num_slots();
+	}
+
 	/**
 	* @brief Attaches progress observer.
 	* @param call slot that is called when the progress changes.
@@ -182,8 +188,9 @@ public:
 	boost::signals::connection attachProgressObserver(boost::function<void(double)>& call)
 	{
 		DLOG(log_ << "attachProgressObserver" << endl);
-		return notifyObservers_.connect(call);//sprawdzic czy ok
+		return notifyObservers_.connect(call);
 	}
+
 	/**
 	* @brief Sets state of the method invocation.
 	* @param fs new state of method invocation.
@@ -208,6 +215,7 @@ public:
 		progress_=1.0;
 		waitingFutures_.notify_all();
 	}
+
 	/**
 	* If the request is queued or in progress, it waits until method is done. When the state is FutureState::EXCEPTION, it rethrows exception. s
 	* @brief Return value of the method invocation.

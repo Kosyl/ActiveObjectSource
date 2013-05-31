@@ -57,7 +57,6 @@ public:
 		shouldIEnd_(false),
 		log_("Scheduler",3),
 		thread_(boost::thread(boost::bind(&Scheduler::run,this)))
-		
 	{
 		DLOG(log_ << "constructor" << endl);
 	}
@@ -91,7 +90,7 @@ private:
 		boost::mutex::scoped_lock lock(mutex_);
 		DLOG(log_ << "dequeue" << endl);
 
-		Functor<Servant>* fun= queue_->pop();
+		Functor<Servant>* fun= queue_->pop(servant_);
 		if(shouldIEnd_ || fun==NULL)
 		{
 			DLOG(log_<<"breaking dequeue"<<endl);

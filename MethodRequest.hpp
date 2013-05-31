@@ -28,6 +28,7 @@ protected:
 	*/
 	//-œmieszne to w sumie jest invoke, invocation
 	boost::shared_ptr<FutureContent> content_;
+	auto_ptr<boost::function<bool(Servant*)> > guard_;
 
 public:
 	/**
@@ -36,8 +37,17 @@ public:
 	*/
 	Functor(boost::shared_ptr<FutureContent> content):
 		content_(content),
-		log_("Functor",8)
+		log_("Functor",8),
+		guard_(NULL)
 	{}
+
+	Functor(boost::shared_ptr<FutureContent> content, boost::function<bool(Servant*)> guard):
+		content_(content),
+		log_("Functor",8),
+		guard_(new boost::function<bool(Servant*)>)
+	{
+		*guard_=guard;
+	}
 	/**
 	* Destructor
 	*/
@@ -62,6 +72,14 @@ public:
 	{
 		DLOG(log_ << "getFutureContent()" << endl);
 		return content_;
+	}
+
+	bool guard(boost::shared_ptr<Servant> s)
+	{
+		DLOG(log_ << "guard" << endl);
+		if(guard_.get()==NULL) return false;
+		
+		return (*guard_)(s.get());
 	}
 
 	//moze sie przyda, moze nie
@@ -100,6 +118,13 @@ public:
 		DLOG(log_ << "constructor" << endl);
 	}
 
+	MethodRequest(boost::function<ReturnType(Servant*)> f, boost::shared_ptr<FutureContent> content, boost::function<bool(Servant*)> guard):
+		Functor<Servant>(content, guard),
+		command_(f)
+	{
+		DLOG(log_ << "constructor" << endl);
+	}
+
 	//Scheduler przekaze tu wskaznik na servanta
 	//przy czym bedzie to juz wskaznik na konkretna klase, a nie bazowa, dzieki parametrowi w szablonie
 	//wiec command bedzie szukalo funkcji we wlasciwej klasie
@@ -119,6 +144,92 @@ public:
 			{
 				DLOG(log_ << "execute() - isReady==true, executing..." << endl);
 				content_->setValue(command_(servant.get()));
+			}
+			catch(RequestCancelledException)
+			{
+				DLOG(log_ << "execute() - request cancelled" << endl);
+			}
+			catch(...)
+			{
+				DLOG(log_ << "execute() - exception" << endl);
+				content_->setException(boost::current_exception());
+			}
+			DLOG(log_ << "execute() - finished" << endl);
+		}
+		else
+		{
+			DLOG(log_ << "execute() - isReady==false" << endl);
+			throw NullCommandException();
+		}
+	}
+	/**
+	* @brief Says if the MethodRequest is ready.
+	* @return whether MethodRequest is ready.
+	*/
+	virtual bool isReady()
+	{
+		return (command_!=false && content_!=NULL);
+	}
+	/**
+	* Destructor.
+	*/
+	virtual ~MethodRequest()
+	{
+		DLOG(log_ << "destructor" << endl);
+	}
+
+};
+
+template<class Servant>
+class MethodRequest<void,Servant>:public Functor<Servant>
+{
+
+private:
+	/**
+	* Pointer to command
+	*/
+	boost::function<void(Servant*)> command_;
+
+public:
+	/**
+	* @brief Constructs MethodRequest with given command and FutureContent.
+	* @param f Invoked command
+	* @param content Pointer to FutureContent that contains info about the invoked command.
+	*/
+	MethodRequest(boost::function<void(Servant*)> f, boost::shared_ptr<FutureContent> content):
+		Functor<Servant>(content),
+		command_(f)
+	{
+		DLOG(log_ << "constructor" << endl);
+	}
+
+	MethodRequest(boost::function<void(Servant*)> f, boost::shared_ptr<FutureContent> content, boost::function<bool(Servant*)> guard):
+		Functor<Servant>(content, guard),
+		command_(f)
+	{
+		DLOG(log_ << "constructor" << endl);
+	}
+
+	//Scheduler przekaze tu wskaznik na servanta
+	//przy czym bedzie to juz wskaznik na konkretna klase, a nie bazowa, dzieki parametrowi w szablonie
+	//wiec command bedzie szukalo funkcji we wlasciwej klasie
+	//Servant ma swoj wskaznik na ten sam content, i wewnatrz funkcji moze ustawiac progress
+	/**
+	* @brief Implementation of Functor::execute
+	* @param servant Servant that is to execute the method.
+	* @see virtual void Functor::execute(boost::shared_ptr<Servant> servant)
+	* @throw NullCommandException when the method is not ready.
+	*/
+	virtual void execute(boost::shared_ptr<Servant> servant)
+	{
+		DLOG(log_ << "execute() - begin" << endl);
+		if(isReady())
+		{
+			try
+			{
+				DLOG(log_ << "execute() - isReady==true, executing..." << endl);
+				command_(servant.get());
+				content_->setValue(true);
 			}
 			catch(RequestCancelledException)
 			{
