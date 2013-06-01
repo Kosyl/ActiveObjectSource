@@ -69,16 +69,20 @@ public:
 	}
 	/**
 	* Sets shouldIEnd to true and waits for its thread end.
-	* @return true :)
 	*/
-	bool stop()  //yy czemu tu by³ bool?
+	void stopOrder() 
 	{ 
+		DLOG(log_ << "stopOrder()" << endl);
 		shouldIEnd_=true;
+	}
+
+	void joinThread()
+	{
 		DLOG(log_ << "stop() - joining" << endl);
 		thread_.join();
 		DLOG(log_ << "stop() - joined" << endl);
-		return true;
 	}
+
 
 private:
 	/**
@@ -88,18 +92,18 @@ private:
 	void dequeue()  
 	{
 		boost::mutex::scoped_lock lock(mutex_);
-		DLOG(log_ << "dequeue" << endl);
+		//DLOG(log_ << "dequeue" << endl);
 
 		Functor<Servant>* fun= queue_->pop(servant_);
 		if(shouldIEnd_ || fun==NULL)
 		{
-			DLOG(log_<<"breaking dequeue"<<endl);
+			//DLOG(log_<<"breaking dequeue"<<endl);
 			return;
 		}
 
 		if(fun->isReady())
 		{
-			DLOG(log_ << "invoking request" << endl);
+			//DLOG(log_ << "invoking request" << endl);
 			//mowimy servantowi schedulera, zeby wskazywal na ten sam content co zadanie wyjete z kolejki
 			servant_->setFutureContent(fun->getFutureContent());
 

@@ -4,6 +4,7 @@
 #include "MethodRequest.hpp"
 #include <queue>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 
@@ -74,8 +75,8 @@ public:
 	ActivationQueue(unsigned long refreshPeriod): 
 		shouldIEnd_(false),
 		log_("AQ",4),
-		guardedCount_(0)
-		thread_(boost::thread(boost::bind(&ActivationQueue::refreshFunction,this,refreshPeriod)))
+		guardedCount_(0),
+		refreshGuardsThread_(boost::thread(boost::bind(&ActivationQueue::refreshFunction,this,refreshPeriod)))
 	{
 		DLOG(log_<<"constructor"<<endl);
 	}
@@ -89,10 +90,14 @@ public:
 		while(!shouldIEnd_)
 		{
 			boost::this_thread::sleep(boost::posix_time::milliseconds(refreshPeriod));
-			boost::mutex::scoped_lock lock(mutex_);
 			DLOG(log_<<"refreshing guards"<<endl);
-			refreshGuards_.notify_all();
+			boost::mutex::scoped_lock lock(mutex_);
+			
+			guardedCount_=0;
+			lock.unlock();
+			refreshGuards_.notify_one();
 		}
+		DLOG(log_<<"koncze odswiezanie guards"<<endl);
 	}
 
 	/**
@@ -148,7 +153,6 @@ public:
 			DLOG(log_<<"returning null to scheduler"<<endl);
 			return NULL;
 		}
-		DLOG(log_<<"returning functor to scheduler"<<endl);
 
 		Functor<Servant>* tmp;
 		while(guardedCount_<queue_.size())
@@ -157,8 +161,6 @@ public:
 			tmp = queue_.front();
 			queue_.pop();
 
-			DLOG(log_<<"test guarda..."<<endl);
-			DLOG(log_<<"guard: "<<tmp->guard(servant) <<endl);
 			if(tmp->guard(servant)==true)
 			{
 				DLOG(log_<<"metoda zablokowana, szukam dalej..."<<endl);
@@ -227,6 +229,8 @@ public:
 		DLOG(log_<<"End()"<<endl);
 		shouldIEnd_=true;
 		cond_.notify_all();
+		lock.unlock();
+		refreshGuardsThread_.join();
 	}
 
 };

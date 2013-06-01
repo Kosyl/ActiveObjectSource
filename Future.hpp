@@ -56,7 +56,7 @@ public:
 		log_("Future",7),
 		progressSlot_(boost::bind(&FutureBase::dummyCallback,this,_1))
 	{	
-		DLOG(log_ << "constructor" << endl);
+		//DLOG(log_ << "constructor" << endl);
 		progressConnection_=pFutureContent_->attachProgressObserver(progressSlot_);
 	}
 
@@ -68,7 +68,7 @@ public:
 		pFutureContent_(rhs.pFutureContent_),
 		log_("Future",7)
 	{
-		DLOG(log_ << "c constructor" << endl);
+		//DLOG(log_ << "c constructor" << endl);
 
 		progressSlot_=rhs.progressSlot_;
 		progressConnection_=pFutureContent_->attachProgressObserver(progressSlot_);
@@ -125,7 +125,7 @@ public:
 	{
 		if(!pFutureContent_)
 			throw RequestCancelledException();
-		DLOG(log_ << "getProgress (" << pFutureContent_->getProgress() << ")" << endl);
+		//DLOG(log_ << "getProgress (" << pFutureContent_->getProgress() << ")" << endl);
 		return pFutureContent_->getProgress();
 	}
 
@@ -138,7 +138,7 @@ public:
 	{
 		if(!pFutureContent_)
 			throw RequestCancelledException();
-		DLOG(log_ << "getException ()" << endl);
+		//DLOG(log_ << "getException ()" << endl);
 		return pFutureContent_->getException();
 	}
 
@@ -151,7 +151,7 @@ public:
 	{
 		if(!pFutureContent_)
 			throw RequestCancelledException();
-		DLOG(log_ << "hasException (" << pFutureContent_->hasException() << ")" << endl);
+		//DLOG(log_ << "hasException (" << pFutureContent_->hasException() << ")" << endl);
 		return pFutureContent_->hasException();
 	}
 
@@ -164,7 +164,7 @@ public:
 	{
 		if(!pFutureContent_)
 			throw RequestCancelledException();
-		DLOG(log_ << "isDone (" << pFutureContent_->isDone() << ")" << endl);
+		//DLOG(log_ << "isDone (" << pFutureContent_->isDone() << ")" << endl);
 		return pFutureContent_->isDone();
 	}
 
@@ -174,7 +174,7 @@ public:
 	*/
 	void cancelRequest()
 	{
-		DLOG(log_ << "cancelRequest" << endl);
+		//DLOG(log_ << "cancelRequest" << endl);
 		if(pFutureContent_)
 		{
 			pFutureContent_->cancel(progressConnection_);
@@ -231,7 +231,7 @@ public:
 	{
 		if(!pFutureContent_)
 			throw RequestCancelledException();
-		DLOG(log_ << "getValue ()" << endl);
+		//DLOG(log_ << "getValue ()" << endl);
 		return boost::any_cast<T>(pFutureContent_->getValue());
 	}
 
@@ -249,7 +249,7 @@ public:
 	*/ 
 	Future<T>& operator=(const Future& rhs)
 	{
-		DLOG(log_ << "c constructor" << endl);
+		//DLOG(log_ << "c constructor" << endl);
 		progressSlot_=rhs.progressSlot_;
 		boost::signals::connection tmp=rhs.pFutureContent_->attachProgressObserver(progressSlot_);
 		pFutureContent_->cancel(progressConnection_);
@@ -305,7 +305,7 @@ public:
 	{
 		if(!pFutureContent_)
 			throw RequestCancelledException();
-		DLOG(log_ << "getValue ()" << endl);
+		//DLOG(log_ << "getValue ()" << endl);
 		return boost::any_cast<bool>(pFutureContent_->getValue());
 	}
 
@@ -323,7 +323,7 @@ public:
 	*/ 
 	Future& operator=(const Future& rhs)
 	{
-		DLOG(log_ << "c constructor" << endl);
+		//DLOG(log_ << "c constructor" << endl);
 		progressSlot_=rhs.progressSlot_;
 		boost::signals::connection tmp=rhs.pFutureContent_->attachProgressObserver(progressSlot_);
 		pFutureContent_->cancel(progressConnection_);

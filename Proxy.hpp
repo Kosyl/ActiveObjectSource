@@ -123,34 +123,60 @@ protected:
 	std::vector<Scheduler<Servant>* > schedulers_;
 	ActivationQueue<Servant>* AQ_;
 
-	Proxy(int numThreads=1):
+	Proxy(unsigned int numThreads=1):
 		AQ_(new ActivationQueue<Servant>()),
 		log_("Proxy",2)
 	{
 		DLOG(log_<<"constructor"<<endl);
-		for(int i=0;i<numThreads;++i)
+		for(unsigned int i=0;i<numThreads;++i)
 		{
 			//korzystamy z wytycznej do wygenerowania wskaznika do servanta
 			boost::shared_ptr<Servant> serv = getServant();
 			schedulers_.push_back(new Scheduler<Servant>(AQ_,serv));
-			//i robimy schedulera
-			
+		}
+	}
+
+	Proxy(unsigned int numThreads, unsigned long refreshPeriod):
+		log_("Proxy",2)
+	{
+		DLOG(log_<<"constructor"<<endl);
+		if(refreshPeriod>0)
+		{
+			AQ_=new ActivationQueue<Servant>(refreshPeriod);
+		}
+		else
+			throw exception("Refresh period has to be greater than 0!");
+
+		for(unsigned int i=0;i<numThreads;++i)
+		{
+			//korzystamy z wytycznej do wygenerowania wskaznika do servanta
+			boost::shared_ptr<Servant> serv = getServant();
+			schedulers_.push_back(new Scheduler<Servant>(AQ_,serv));
 		}
 	}
 
 	struct stop 
 	{
 		void operator() (Scheduler<Servant>* i) {
-			i->stop();
+			i->stopOrder();
 		}
 	} stopScheduler;
+
+	struct joinSchedul 
+	{
+		void operator() (Scheduler<Servant>* i) {
+			i->joinThread();
+		}
+	} joinScheduler;
 
 	virtual ~Proxy()
 	{
 		DLOG(log_<<"destructor"<<endl);
-		AQ_->End();
-
+		
 		for_each( schedulers_.begin(), schedulers_.end(), stopScheduler);
+		AQ_->End();
+		for_each( schedulers_.begin(), schedulers_.end(), joinScheduler);
+
 		DLOG(log_<<"deleting schedulers"<<endl);
 		for(unsigned int i=0;i<schedulers_.size();++i)
 		{

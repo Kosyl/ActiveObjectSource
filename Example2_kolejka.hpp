@@ -118,6 +118,8 @@ public:
 		Proxy(numThreads)
 	{}
 
+	
+
 	//tyle kodu bedzie potrzeba na obsluge zadania jednej funkcji
 	//bardzo mozliwe ze da sie to zautomatyzowac
 	Future<void> Put(std::string s)
@@ -138,6 +140,10 @@ public:
 
 	SyncQueueProxy(int numThreads=1):
 		Proxy(numThreads)
+	{}
+
+	SyncQueueProxy(int numThreads, unsigned long refreshPeriod):
+		Proxy(numThreads,refreshPeriod)
 	{}
 
 	//tyle kodu bedzie potrzeba na obsluge zadania jednej funkcji

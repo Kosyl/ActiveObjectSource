@@ -406,6 +406,39 @@ void testGuardMultipleThreads()
 	DLOG(log << "//////////////////kasujemy wsio...///////////////////" << endl);
 }
 
+void testRefreshPeriod()
+{
+	DLOG(Logger log("MAIN"));
+	DLOG(log << "//////////////////Test refresh period///////////////////" << endl);
+
+	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	SyncQueueProxy p(3,2000L);
+
+	DLOG(log << "//////////////////wolam future dodawania///////////////////" << endl);
+	
+	Future<void> f1 = p.Put("msg1");
+	Future<void> f2 = p.Put("msg2");
+	Future<void> f3 = p.Put("msg3");
+	Future<void> f4 = p.Put("msg4");
+	Future<void> f5 = p.Put("msg5");
+	Future<void> f6 = p.Put("msg6");
+	Future<void> f7 = p.Put("msg7");
+	Future<void> f8 = p.Put("msg8");
+	Future<void> f9 = p.Put("msg9");
+	Future<void> f10 = p.Put("msg10");
+	DLOG(log << "//////////////////czekamy...///////////////////" << endl);
+	boost::this_thread::sleep(boost::posix_time::milliseconds(4000));
+	DLOG(log << "//////////////////Wyjmowanie z kolejki///////////////////" << endl);
+	for(int i=0;i<10;++i)
+	{
+		Future<std::string> f_ans = p.Get();
+		DLOG(log << "f_ans: " << f_ans.getValue() << endl);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+	}
+
+	DLOG(log << "//////////////////kasujemy wsio...///////////////////" << endl);
+}
+
 int main(int argc, char* argv[])
 {	
 	//testSyncProxy();
@@ -430,9 +463,11 @@ int main(int argc, char* argv[])
 
 	//testGuard();
 
-	testVoidInvokes();
+	//testVoidInvokes();
 
 	//testGuardMultipleThreads();
+
+	testRefreshPeriod();
 
 	system("PAUSE");
 
