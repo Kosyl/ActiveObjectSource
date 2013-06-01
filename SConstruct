@@ -9,14 +9,17 @@ if(platform.system() == "Linux"):
    e.Append( LIBPATH = ['/usr/lib/python2.7'] )
    e.Append( LIBS = [ 'boost_python' ] )
 
-   target = 'Main.so'
 elif(platform.system() == "Windows"):
    e.Append( CPPFLAGS = ' /EHsc /D "WIN32" /D "_WIN32_WINNT#0x501" /D "_CONSOLE" /W4 /MD' )
-   e.Append( CPPPATH = [ 'c:/Program Files/Boost/boost_1_53_0', 'C:/Python27/include' ] )
-   e.Append( LIBPATH = [ 'C:/Program Files/Boost/boost_1_53_0/stage/lib', 'C:/Python27/libs' ] )
+   e.Append( CPPPATH = [ 'c:/Program Files/Boost/boost_1_53_0'] )
+   e.Append( LIBPATH = [ 'C:/Program Files/Boost/boost_1_53_0/stage/lib' ] )
 
-   target = 'Hello.pyd'
 else:
    print platform.system() + " not supported"
 
-e.Program(target = 'ActObj', source = 'Main.cpp')
+debug = ARGUMENTS.get('debug', 0)
+if int(debug):
+	e.Append(CCFLAGS = '-D_DEBUG')
+	e.Program(target = 'ActObjDeb', source = 'Main.cpp')
+else: 
+	e.Program(target = 'ActObj', source = 'Main.cpp')
