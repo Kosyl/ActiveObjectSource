@@ -13,33 +13,32 @@ using namespace std;
 
 void testFuture()
 {
-	DLOG(
-		Logger log("MAIN");
+	Logger log("MAIN");
 	log << "//////////////////Test rzutowania///////////////////" << endl;
-	)
+
 }
 
 void testSyncProxy()
 {
-	DLOG(Logger log("MAIN"));
-	DLOG(log << "//////////////////Test proxy///////////////////" << endl);
+	Logger log("MAIN");
+	log << "//////////////////Test proxy///////////////////" << endl;
 	for(int i=0;i<3;++i)
 	{
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-		DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+		log << "//////////////////tworze proxy///////////////////" << endl;
 		CalcProxy p(3);
-		DLOG(log << "//////////////////kasuje proxy...///////////////////" << endl);
+		log << "//////////////////kasuje proxy...///////////////////" << endl;
 	}
 }
 
 void testSimpleInvoke()
 {
-	DLOG(Logger log("MAIN"));
-	DLOG(log << "//////////////////Test invoke///////////////////" << endl);
+	Logger log("MAIN");
+	log << "//////////////////Test invoke///////////////////" << endl;
 
-	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	log << "//////////////////tworze proxy///////////////////" << endl;
 	CalcProxy p(1);
-	DLOG(log << "//////////////////wolam future dodawania///////////////////" << endl);
+	log << "//////////////////wolam future dodawania///////////////////" << endl;
 	struct call
 	{
 		void operator ()(double x)
@@ -50,89 +49,89 @@ void testSimpleInvoke()
 	Future<int> f = p.AddInt(3,5);
 	f.setFunction(callback);
 
-	DLOG(log << "//////////////////czekam...///////////////////" << endl);
+	log << "//////////////////czekam...///////////////////" << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 
-	DLOG(log << "//////////////////wynik///////////////////" << endl);
-	DLOG(log << "//////////////////" << f.getValue() << "///////////////////" << endl);
+	log << "//////////////////wynik///////////////////" << endl;
+	log << "//////////////////" << f.getValue() << "///////////////////" << endl;
 
-	DLOG(log << "//////////////////wolam future dzielenia///////////////////" << endl);
+	log << "//////////////////wolam future dzielenia///////////////////" << endl;
 }
 
 void testException()
 {
-	DLOG(Logger log("MAIN"));
-	DLOG(log << "//////////////////Test exception///////////////////" << endl);
+	Logger log("MAIN");
+	log << "//////////////////Test exception///////////////////" << endl;
 
-	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	log << "//////////////////tworze proxy///////////////////" << endl;
 	CalcProxy p(1);
 
-	DLOG(log << "//////////////////wolam future dzielenia///////////////////" << endl);
+	log << "//////////////////wolam future dzielenia///////////////////" << endl;
 	
 	Future<int> f2 = p.DivideInt(3,0);
-	DLOG(log << "//////////////////czekam...///////////////////" << endl);
+	log << "//////////////////czekam...///////////////////" << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 
-	DLOG(log << "//////////////////wynik///////////////////" << endl);
+	log << "//////////////////wynik///////////////////" << endl;
 	try
 	{
 		f2.getValue();
 	}
 	catch(exception& e)
 	{
-		DLOG(log << "exception: " << e.what() << endl);
+		log << "exception: " << e.what() << endl;
 	}
-	DLOG(log << "//////////////////kasuje proxy...///////////////////" << endl);
+	log << "//////////////////kasuje proxy...///////////////////" << endl;
 }
 
 void testCancel()
 {
-	DLOG(Logger log("MAIN"));
-	DLOG(log << "//////////////////Test cancel///////////////////" << endl);
+	Logger log("MAIN");
+	log << "//////////////////Test cancel///////////////////" << endl;
 
-	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	log << "//////////////////tworze proxy///////////////////" << endl;
 	CalcProxy p(1);
-	DLOG(log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl);
+	log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl;
 	
 	Future<int> f = p.ReallyFrickinLongAddInt(3,5);
-	DLOG(log << "//////////////////czekam...///////////////////" << endl);
+	log << "//////////////////czekam...///////////////////" << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
 
 	f.cancelRequest();
-	DLOG(log << "//////////////////wynik///////////////////" << endl);
+	log << "//////////////////wynik///////////////////" << endl;
 	try
 	{
 		f.getValue();
 	}
 	catch(exception& e)
 	{
-		DLOG(log << "exception: " << e.what() << endl);
+		log << "exception: " << e.what() << endl;
 	}
 }
 
 void testSharedContent()
 {
-	DLOG(Logger log("MAIN"));
-	DLOG(log << "//////////////////Test wspoldzielonego contentu///////////////////" << endl);
+	Logger log("MAIN");
+	log << "//////////////////Test wspoldzielonego contentu///////////////////" << endl;
 
-	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	log << "//////////////////tworze proxy///////////////////" << endl;
 	CalcProxy p(1);
-	DLOG(log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl);
+	log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl;
 	
 	Future<int> f = p.ReallyFrickinLongAddInt(3,5);
-	DLOG(log << "//////////////////czekam...///////////////////" << endl);
+	log << "//////////////////czekam...///////////////////" << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(3000));
 
 	Future<int>f2(f);
 	f.cancelRequest();
-	DLOG(log << "//////////////////pierwszy callback///////////////////" << endl);
+	log << "//////////////////pierwszy callback///////////////////" << endl;
 	try
 	{
 		f.getValue();
 	}
 	catch(exception& e)
 	{
-		DLOG(log << "exception: " << e.what() << endl);
+		log << "exception: " << e.what() << endl;
 	}
 
 	boost::this_thread::sleep(boost::posix_time::milliseconds(3000));
@@ -143,18 +142,18 @@ void testSharedContent()
 	}
 	catch(exception& e)
 	{
-		DLOG(log << "exception: " << e.what() << endl);
+		log << "exception: " << e.what() << endl;
 	}
 }
 
 void testSwapCallback()
 {
-	DLOG(Logger log("MAIN"));
-	DLOG(log << "//////////////////Test swap callback///////////////////" << endl);
+	Logger log("MAIN");
+	log << "//////////////////Test swap callback///////////////////" << endl;
 
-	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	log << "//////////////////tworze proxy///////////////////" << endl;
 	CalcProxy p(1);
-	DLOG(log << "//////////////////wolam future dodawania///////////////////" << endl);
+	log << "//////////////////wolam future dodawania///////////////////" << endl;
 	struct call
 	{
 		void operator ()(double x)
@@ -165,10 +164,10 @@ void testSwapCallback()
 	Future<int> f = p.ReallyFrickinLongAddInt(30,50);
 	f.setFunction(callback);
 
-	DLOG(log << "//////////////////czekam...///////////////////" << endl);
+	log << "//////////////////czekam...///////////////////" << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(2500));
 
-	DLOG(log << "//////////////////zmieniam callback///////////////////" << endl);
+	log << "//////////////////zmieniam callback///////////////////" << endl;
 	struct call2
 	{
 		void operator ()(double x)
@@ -178,10 +177,10 @@ void testSwapCallback()
 	} callback2;
 	f.setFunction(callback2);
 
-	DLOG(log << "//////////////////czekam...///////////////////" << endl);
+	log << "//////////////////czekam...///////////////////" << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(2500));
 
-	DLOG(log << "//////////////////zmieniam callback///////////////////" << endl);
+	log << "//////////////////zmieniam callback///////////////////" << endl;
 	struct call3
 	{
 		void operator ()(double x)
@@ -191,18 +190,18 @@ void testSwapCallback()
 	} callback3;
 	f.setFunction(callback3);
 
-	DLOG(log << "//////////////////blokuje...///////////////////" << endl);
+	log << "//////////////////blokuje...///////////////////" << endl;
 	f.getValue();
 }
 
 void testManyThreads()
 {
-	DLOG(Logger log("MAIN"));
-	DLOG(log << "//////////////////Test - >1 thread///////////////////" << endl);
+	Logger log("MAIN");
+	log << "//////////////////Test - >1 thread///////////////////" << endl;
 
-	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	log << "//////////////////tworze proxy///////////////////" << endl;
 	CalcProxy p(3);
-	DLOG(log << "//////////////////wolam future dodawania///////////////////" << endl);
+	log << "//////////////////wolam future dodawania///////////////////" << endl;
 	
 	Future<int> f1 = p.ReallyFrickinLongAddInt(30,50);
 	Future<int> f2 = p.ReallyFrickinLongAddInt(34,51);
@@ -213,100 +212,100 @@ void testManyThreads()
 	Future<int> f7 = p.ReallyFrickinLongAddInt(100,34);
 	Future<int> f8 = p.ReallyFrickinLongAddInt(2,34);
 
-	DLOG(log << "//////////////////czekamy...///////////////////" << endl);
+	log << "//////////////////czekamy...///////////////////" << endl;
 	
-	DLOG(log << "f1: " << f1.getValue() << endl);
-	DLOG(log << "f2: " << f2.getValue() << endl);
-	DLOG(log << "f3: " << f3.getValue() << endl);
-	DLOG(log << "f4: " << f4.getValue() << endl);
-	DLOG(log << "f5: " << f5.getValue() << endl);
-	DLOG(log << "f6: " << f6.getValue() << endl);
-	DLOG(log << "f7: " << f7.getValue() << endl);
-	DLOG(log << "f8: " << f8.getValue() << endl);
+	log << "f1: " << f1.getValue() << endl;
+	log << "f2: " << f2.getValue() << endl;
+	log << "f3: " << f3.getValue() << endl;
+	log << "f4: " << f4.getValue() << endl;
+	log << "f5: " << f5.getValue() << endl;
+	log << "f6: " << f6.getValue() << endl;
+	log << "f7: " << f7.getValue() << endl;
+	log << "f8: " << f8.getValue() << endl;
 	
 }
 
 void testSingletonServant()
 {
-	DLOG(Logger log("MAIN"));
-	DLOG(log << "//////////////////Test servant-singleton///////////////////" << endl);
+	Logger log("MAIN");
+	log << "//////////////////Test servant-singleton///////////////////" << endl;
 
-	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	log << "//////////////////tworze proxy///////////////////" << endl;
 	SyncCalcProxy p(3);
-	DLOG(log << "//////////////////wolam future dodawania///////////////////" << endl);
+	log << "//////////////////wolam future dodawania///////////////////" << endl;
 	
 	Future<int> f1 = p.SlowAddInt(30,50);
 	Future<int> f2 = p.SlowAddInt(34,51);
 	Future<int> f3 = p.SlowAddInt(3,58);
 	Future<int> f4 = p.SlowAddInt(1,234);
 
-	DLOG(log << "//////////////////czekamy...///////////////////" << endl);
+	log << "//////////////////czekamy...///////////////////" << endl;
 	
-	DLOG(log << "f1: " << f1.getValue() << endl);
-	DLOG(log << "f2: " << f2.getValue() << endl);
-	DLOG(log << "f3: " << f3.getValue() << endl);
-	DLOG(log << "f4: " << f4.getValue() << endl);
+	log << "f1: " << f1.getValue() << endl;
+	log << "f2: " << f2.getValue() << endl;
+	log << "f3: " << f3.getValue() << endl;
+	log << "f4: " << f4.getValue() << endl;
 }
 
 void testPersistantFuture()
 {
-	DLOG(Logger log("MAIN"));
-	DLOG(log << "//////////////////Test dlugotrwalego future///////////////////" << endl);
+	Logger log("MAIN");
+	log << "//////////////////Test dlugotrwalego future///////////////////" << endl;
 
-	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	log << "//////////////////tworze proxy///////////////////" << endl;
 	CalcProxy* p = new CalcProxy(1);
-	DLOG(log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl);
+	log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl;
 	
 	Future<int> f = p->ReallyFrickinLongAddInt(3,5);
 
-	DLOG(log << "//////////////////czekam na wartosc w trybie blokujacym///////////////////" << endl);
+	log << "//////////////////czekam na wartosc w trybie blokujacym///////////////////" << endl;
 	try
 	{
-		DLOG(log << "//////////////////" << f.getValue() << "///////////////////" << endl);
+		log << "//////////////////" << f.getValue() << "///////////////////" << endl;
 	}
 	catch(exception& e)
 	{
-		DLOG(log << "exception: " << e.what() << endl);
+		log << "exception: " << e.what() << endl;
 	}
 
 	boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
 
-	DLOG(log << "//////////////////kasuje proxy///////////////////" << endl);
+	log << "//////////////////kasuje proxy///////////////////" << endl;
 	delete p;
 
 	boost::this_thread::sleep(boost::posix_time::milliseconds(3000));
 
-	DLOG(log << "//////////////////Ponowna proba odczytania wartosci///////////////////" << endl);
+	log << "//////////////////Ponowna proba odczytania wartosci///////////////////" << endl;
 	try
 	{
-		DLOG(log << "//////////////////" << f.getValue() << "///////////////////" << endl);
+		log << "//////////////////" << f.getValue() << "///////////////////" << endl;
 	}
 	catch(exception& e)
 	{
-		DLOG(log << "exception: " << e.what() << endl);
+		log << "exception: " << e.what() << endl;
 	}
 
-	DLOG(log << "//////////////////cancel powinien skasowac content//////////////////" << endl);
+	log << "//////////////////cancel powinien skasowac content//////////////////" << endl;
 	f.cancelRequest();
 	try
 	{
-		DLOG(log << "//////////////////" << f.getValue() << "///////////////////" << endl);
+		log << "//////////////////" << f.getValue() << "///////////////////" << endl;
 	}
 	catch(exception& e)
 	{
-		DLOG(log << "exception: " << e.what() << endl);
+		log << "exception: " << e.what() << endl;
 	}
 	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 }
 
 void testManyMethods()
 {
-	DLOG(Logger log("MAIN"));
-	DLOG(log << "//////////////////Test wielu metod///////////////////" << endl);
+	Logger log("MAIN");
+	log << "//////////////////Test wielu metod///////////////////" << endl;
 
-	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	log << "//////////////////tworze proxy///////////////////" << endl;
 	CalcProxy p(2);
-	DLOG(log << "//////////////////wolam future dodawania///////////////////" << endl);
+	log << "//////////////////wolam future dodawania///////////////////" << endl;
 	
 	Future<int> f1 = p.AddInt(30,50);
 	Future<int> f2 = p.SlowAddInt(34,51);
@@ -314,75 +313,75 @@ void testManyMethods()
 	Future<int> f4 = p.DivideInt(234,2);
 	Future<double> f5 = p.DivideDouble(12312.23,5434.99);
 
-	DLOG(log << "//////////////////czekamy...///////////////////" << endl);
+	log << "//////////////////czekamy...///////////////////" << endl;
 	
-	DLOG(log << "f1: " << f1.getValue() << endl);
-	DLOG(log << "f2: " << f2.getValue() << endl);
-	DLOG(log << "f3: " << f3.getValue() << endl);
-	DLOG(log << "f4: " << f4.getValue() << endl);
-	DLOG(log << "f5: " << f5.getValue() << endl);
+	log << "f1: " << f1.getValue() << endl;
+	log << "f2: " << f2.getValue() << endl;
+	log << "f3: " << f3.getValue() << endl;
+	log << "f4: " << f4.getValue() << endl;
+	log << "f5: " << f5.getValue() << endl;
 }
 
 void testGuard()
 {
-	DLOG(Logger log("MAIN"));
-	DLOG(log << "//////////////////Test guarda///////////////////" << endl);
+	Logger log("MAIN");
+	log << "//////////////////Test guarda///////////////////" << endl;
 
-	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	log << "//////////////////tworze proxy///////////////////" << endl;
 	QueueProxy p(1);
-	DLOG(log << "//////////////////wolam future dodawania///////////////////" << endl);
+	log << "//////////////////wolam future dodawania///////////////////" << endl;
 	
 	Future<void> f1 = p.Put("msg1");
 	Future<void> f2 = p.Put("msg2");
 	Future<void> f3 = p.Put("msg3");
 	boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
-	DLOG(log << "//////////////////Wyjmowanie z kolejki///////////////////" << endl);
+	log << "//////////////////Wyjmowanie z kolejki///////////////////" << endl;
 	Future<std::string> f4 = p.Get();
 	Future<std::string> f5 = p.Get();
 	Future<std::string> f6 = p.Get();
 
-	DLOG(log << "//////////////////czekamy...///////////////////" << endl);
+	log << "//////////////////czekamy...///////////////////" << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
-	DLOG(log << "//////////////////getValue...///////////////////" << endl);
-	DLOG(log << "f4: " << f4.getValue() << endl);
-	DLOG(log << "f5: " << f5.getValue() << endl);
-	DLOG(log << "f6: " << f6.getValue() << endl);
+	log << "//////////////////getValue...///////////////////" << endl;
+	log << "f4: " << f4.getValue() << endl;
+	log << "f5: " << f5.getValue() << endl;
+	log << "f6: " << f6.getValue() << endl;
 }
 
 void testVoidInvokes()
 {
-	DLOG(Logger log("MAIN"));
-	DLOG(log << "//////////////////Test metod void, zobaczymy, czy siê wykonaj¹///////////////////" << endl);
+	Logger log("MAIN");
+	log << "//////////////////Test metod void, zobaczymy, czy siê wykonaj¹///////////////////" << endl;
 
-	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	log << "//////////////////tworze proxy///////////////////" << endl;
 	QueueProxy p(1);
-	DLOG(log << "//////////////////wolam metody dodawania///////////////////" << endl);
+	log << "//////////////////wolam metody dodawania///////////////////" << endl;
 	
 	p.Put("msg1");
 	p.Put("msg2");
 	p.Put("msg3");
 	boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
-	DLOG(log << "//////////////////Wyjmowanie z kolejki///////////////////" << endl);
+	log << "//////////////////Wyjmowanie z kolejki///////////////////" << endl;
 	Future<std::string> f4 = p.Get();
 	Future<std::string> f5 = p.Get();
 	Future<std::string> f6 = p.Get();
 
-	DLOG(log << "//////////////////czekamy...///////////////////" << endl);
+	log << "//////////////////czekamy...///////////////////" << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
-	DLOG(log << "//////////////////getValue...///////////////////" << endl);
-	DLOG(log << "f4: " << f4.getValue() << endl);
-	DLOG(log << "f5: " << f5.getValue() << endl);
-	DLOG(log << "f6: " << f6.getValue() << endl);
+	log << "//////////////////getValue...///////////////////" << endl;
+	log << "f4: " << f4.getValue() << endl;
+	log << "f5: " << f5.getValue() << endl;
+	log << "f6: " << f6.getValue() << endl;
 }
 
 void testGuardMultipleThreads()
 {
-	DLOG(Logger log("MAIN"));
-	DLOG(log << "//////////////////Test guarda///////////////////" << endl);
+	Logger log("MAIN");
+	log << "//////////////////Test guarda///////////////////" << endl;
 
-	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	log << "//////////////////tworze proxy///////////////////" << endl;
 	SyncQueueProxy p(3);
-	DLOG(log << "//////////////////wolam future dodawania///////////////////" << endl);
+	log << "//////////////////wolam future dodawania///////////////////" << endl;
 	
 	Future<void> f1 = p.Put("msg1");
 	Future<void> f2 = p.Put("msg2");
@@ -393,28 +392,28 @@ void testGuardMultipleThreads()
 	Future<void> f7 = p.Put("msg7");
 	Future<void> f8 = p.Put("msg8");
 	Future<void> f9 = p.Put("msg9");
-	DLOG(log << "//////////////////czekamy...///////////////////" << endl);
+	log << "//////////////////czekamy...///////////////////" << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(10000));
-	DLOG(log << "//////////////////Wyjmowanie z kolejki///////////////////" << endl);
+	log << "//////////////////Wyjmowanie z kolejki///////////////////" << endl;
 	for(int i=0;i<9;++i)
 	{
 		Future<std::string> f_ans = p.Get();
-		DLOG(log << "f_ans: " << f_ans.getValue() << endl);
+		log << "f_ans: " << f_ans.getValue() << endl;
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 	}
 
-	DLOG(log << "//////////////////kasujemy wsio...///////////////////" << endl);
+	log << "//////////////////kasujemy wsio...///////////////////" << endl;
 }
 
 void testRefreshPeriod()
 {
-	DLOG(Logger log("MAIN"));
-	DLOG(log << "//////////////////Test refresh period///////////////////" << endl);
+	Logger log("MAIN");
+	log << "//////////////////Test refresh period///////////////////" << endl;
 
-	DLOG(log << "//////////////////tworze proxy///////////////////" << endl);
+	log << "//////////////////tworze proxy///////////////////" << endl;
 	SyncQueueProxy p(3,2000L);
 
-	DLOG(log << "//////////////////wolam future dodawania///////////////////" << endl);
+	log << "//////////////////wolam future dodawania///////////////////" << endl;
 	
 	Future<void> f1 = p.Put("msg1");
 	Future<void> f2 = p.Put("msg2");
@@ -426,49 +425,62 @@ void testRefreshPeriod()
 	Future<void> f8 = p.Put("msg8");
 	Future<void> f9 = p.Put("msg9");
 	Future<void> f10 = p.Put("msg10");
-	DLOG(log << "//////////////////czekamy...///////////////////" << endl);
+	log << "//////////////////czekamy...///////////////////" << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(4000));
-	DLOG(log << "//////////////////Wyjmowanie z kolejki///////////////////" << endl);
+	log << "//////////////////Wyjmowanie z kolejki///////////////////" << endl;
 	for(int i=0;i<10;++i)
 	{
 		Future<std::string> f_ans = p.Get();
-		DLOG(log << "f_ans: " << f_ans.getValue() << endl);
+		log << "f_ans: " << f_ans.getValue() << endl;
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 	}
 
-	DLOG(log << "//////////////////kasujemy wsio...///////////////////" << endl);
+	log << "//////////////////kasujemy wsio...///////////////////" << endl;
 }
 
 int main(int argc, char* argv[])
 {	
-	//testSyncProxy();
+	cout<<"TESTOWANIE ACTIVE OBJECT"<<endl;
+	int prog= 1;
+	while(prog) 
+	{
+		cout<<endl;
+		cout<<"Wybierz test wpisujac odpowiednia liczbe: "<<endl<<endl;
+		cout<<"\ttestSyncProxy\t\t-\t1"<<endl;
+		cout<<"\ttestSimpleInvoke\t-\t2"<<endl;
+		cout<<"\ttestException\t\t-\t3"<<endl;
+		cout<<"\ttestCancel\t\t-\t4"<<endl;
+		cout<<"\ttestSharedContent\t-\t5"<<endl;
+		cout<<"\ttestSwapCallback\t-\t6"<<endl;
+		cout<<"\ttestManyThreads\t\t-\t7"<<endl;
+		cout<<"\ttestSingletonServant\t-\t8"<<endl;
+		cout<<"\ttestPersistantFuture\t-\t9"<<endl;
+		cout<<"\ttestManyMethods\t\t-\t10"<<endl;
+		cout<<"\ttestGuard\t\t-\t11"<<endl;
+		cout<<"\ttestVoidInvokes\t\t-\t12"<<endl;
+		cout<<"\ttestGuardMultipleThreads-\t13"<<endl;
+		cout<<"\ttestRefreshPeriod\t-\t14"<<endl<<endl;
+		cout<<"\tWyjscie\t\t\t-\t0"<<endl;
 
-	//testSimpleInvoke();
+		cin>>prog;
+		cout<<endl;
 
-	//testException();
-
-	//testCancel();
-
-	//testSharedContent();
-
-	//testSwapCallback();
-
-	//testManyThreads();
-
-	//testSingletonServant();
-
-	//testPersistantFuture();
-	
-	//testManyMethods();
-
-	//testGuard();
-
-	//testVoidInvokes();
-
-	//testGuardMultipleThreads();
-
-	testRefreshPeriod();
-
+		if(prog<0) prog=0;
+		else if(prog==1) testSyncProxy();
+		else if(prog==2) testSimpleInvoke();
+		else if(prog==3) testException();
+		else if(prog==4) testCancel();
+		else if(prog==5) testSharedContent();
+		else if(prog==6) testSwapCallback();
+		else if(prog==7) testManyThreads();
+		else if(prog==8) testSingletonServant();
+		else if(prog==9) testPersistantFuture();
+		else if(prog==10) testManyMethods();
+		else if(prog==11) testGuard();
+		else if(prog==12) testVoidInvokes();
+		else if(prog==13) testGuardMultipleThreads();
+		else if(prog==14) testRefreshPeriod();
+	}
 	system("PAUSE");
 
 	return EXIT_SUCCESS;
