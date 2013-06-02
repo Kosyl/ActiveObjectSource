@@ -57,7 +57,7 @@ public:
 		return a+b;
 	}
 
-	int DivideInt(int a, int b) throw(std::overflow_error)
+	int DivideInt(int a, int b)
 	{
 		setProgress(0.2);
 		if (b == 0)
@@ -66,7 +66,7 @@ public:
 		return a/b;
 	}
 	
-	double DivideDouble(double a, double b) throw(std::overflow_error)
+	double DivideDouble(double a, double b)
 	{
 		setProgress(0.2);
 		if (b == 0.0)
@@ -122,7 +122,7 @@ public:
 		return a+b;
 	}
 
-	int DivideInt(int a, int b) throw(std::overflow_error)
+	int DivideInt(int a, int b)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		setProgress(0.2);
