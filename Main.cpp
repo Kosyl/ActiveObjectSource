@@ -1,6 +1,7 @@
 #ifndef _MAIN_
 #define _MAIN_
 
+#define BOOST_TEST_MAIN
 #include <string>
 #include <boost/function.hpp>
 #include "Future.hpp"
@@ -9,6 +10,7 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include "Example2_kolejka.hpp"
+#include <boost/test/unit_test.hpp>
 
 using namespace std;
 using namespace ActiveObject;
@@ -39,6 +41,10 @@ void testSimpleInvoke()
 	log << "//////////////////Test invoke///////////////////" << endl;
 
 	log << "//////////////////tworze proxy///////////////////" << endl;
+	//podstawowe komunikaty
+	BOOST_WARN(3==2); //pojawia sie warning (gdzie? na pewno nie na konsoli), ale test dalej trwa i nie konczy sie negatywnie
+	BOOST_CHECK(3==4); //wyrzuca blad na ekranie, test trwa dalej i konczy sie negatywnie
+	//BOOST_REQUIRE(1==2); //wyrzuca blad i konczy test, ktory konczy sie negatywnie
 	CalcProxy p(1);
 	log << "//////////////////wolam future dodawania///////////////////" << endl;
 	struct call
@@ -440,7 +446,8 @@ void testRefreshPeriod()
 	log << "//////////////////kasujemy wsio...///////////////////" << endl;
 }
 
-int main(int argc, char* argv[])
+//int main(int argc, char* argv[])
+BOOST_AUTO_TEST_CASE(Main)
 {	
 	cout<<"TESTOWANIE ACTIVE OBJECT"<<endl;
 	int prog= 1;
@@ -484,8 +491,8 @@ int main(int argc, char* argv[])
 		else if(prog==14) testRefreshPeriod();
 	}
 	system("PAUSE");
-
-	return EXIT_SUCCESS;
+/*
+	return EXIT_SUCCESS;*/
 }
 
 #endif
