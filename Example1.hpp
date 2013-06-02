@@ -3,14 +3,15 @@
 
 #include "SimpleLog.hpp"
 #include "FutureContentCreator.hpp"
-#include <boost\function.hpp>
-#include <boost\thread.hpp>
+#include <boost/function.hpp>
+#include <boost/thread.hpp>
 #include "Proxy.hpp"
 #include "Future.hpp"
 #include "MethodRequest.hpp"
 
 using namespace std;
 
+using namespace ActiveObject;
 //implementacja przykladowego servanta, ma progress!
 class CalcServant: public FutureContentCreator
 {
@@ -56,7 +57,7 @@ public:
 		return a+b;
 	}
 
-	int DivideInt(int a, int b) throw(...)
+	int DivideInt(int a, int b) throw(std::overflow_error)
 	{
 		setProgress(0.2);
 		if (b == 0)
@@ -65,7 +66,7 @@ public:
 		return a/b;
 	}
 	
-	double DivideDouble(double a, double b) throw(...)
+	double DivideDouble(double a, double b) throw(std::overflow_error)
 	{
 		setProgress(0.2);
 		if (b == 0.0)
@@ -121,7 +122,7 @@ public:
 		return a+b;
 	}
 
-	int DivideInt(int a, int b) throw(...)
+	int DivideInt(int a, int b) throw(std::overflow_error)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		setProgress(0.2);

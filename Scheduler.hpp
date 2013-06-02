@@ -10,6 +10,8 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
+namespace ActiveObject
+{
 /**
 * @brief Dequeues client request from ActivationQueue and makes Servant to execute them.
 * @tparam Servant Type of servant that executes methods. 
@@ -26,10 +28,7 @@ private:
 	* Pointer to servant which executes method.
 	*/
 	boost::shared_ptr<Servant> servant_;
-	/**
-	* Thread of Scheduler.
-	*/
-	boost::thread thread_;
+	
 	/**
 	*
 	*/
@@ -43,6 +42,10 @@ private:
 	* Logger
 	*/
 	mutable Logger log_;
+	/**
+	* Thread of Scheduler.
+	*/
+	boost::thread thread_;
 public:
 
 	/**
@@ -129,5 +132,5 @@ private:
 	}	
 };
 
-
+}//ActiveObject
 #endif

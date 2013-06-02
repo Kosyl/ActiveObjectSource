@@ -8,6 +8,9 @@
 #include <boost/thread/condition_variable.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 
+namespace ActiveObject
+{
+    
 /**
 * ActivationQueue is created by Proxy that pushes Functors into it. Functors are dequeued by Schedulers.
 * @brief A thread-safe queue of Functor objects. 
@@ -27,10 +30,23 @@ private:
 	*/
 	std::queue <Functor<Servant>* > queue_; 
 
+	/**
+	* Flag that indicates whether ActivationQueue is to be destroyed.
+	* @see void End()
+	*/
+	volatile bool shouldIEnd_;
+
 	// - opisywanie mutexow itp chyba by by³o przesada :D
 	mutable boost::mutex mutex_;
 	boost::condition_variable cond_;
 	boost::condition_variable refreshGuards_;
+
+
+	/**
+	* Number of methods in the queue, which are unable to execute because of their guards
+	* @see Functor<Servant>* Pop()
+	*/
+	unsigned int guardedCount_;
 
 	/**
 	* periodically orders Schedulers to check the guards of all the queued MethodRequests
@@ -42,19 +58,6 @@ private:
 	* thread-safe logger
 	*/
 	mutable Logger log_;
-
-	/**
-	* Flag that indicates whether ActivationQueue is to be destroyed.
-	* @see void End()
-	*/
-	volatile bool shouldIEnd_;
-
-	/**
-	* Number of methods in the queue, which are unable to execute because of their guards
-	* @see Functor<Servant>* Pop()
-	*/
-	unsigned int guardedCount_;
-
 public:
 
 	/**
@@ -62,8 +65,8 @@ public:
 	*/
 	ActivationQueue(void): 
 		shouldIEnd_(false),
-		log_("AQ",4),
-		guardedCount_(0)
+		guardedCount_(0),
+		log_("AQ",4)
 	{
 		DLOG(log_<<"constructor"<<endl);
 	}
@@ -74,9 +77,8 @@ public:
 	*/
 	ActivationQueue(unsigned long refreshPeriod): 
 		shouldIEnd_(false),
-		log_("AQ",4),
-		guardedCount_(0),
-		refreshGuardsThread_(boost::thread(boost::bind(&ActivationQueue::refreshFunction,this,refreshPeriod)))
+		guardedCount_(0),	refreshGuardsThread_(boost::thread(boost::bind(&ActivationQueue::refreshFunction,this,refreshPeriod))),
+		log_("AQ",4)
 	{
 		DLOG(log_<<"constructor"<<endl);
 	}
@@ -234,7 +236,8 @@ public:
 	}
 
 };
-//////////////////////////////////////////////////////////////////////////
+
+}//ActiveObject
 
 #endif
 

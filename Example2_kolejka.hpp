@@ -3,15 +3,15 @@
 
 #include "SimpleLog.hpp"
 #include "FutureContentCreator.hpp"
-#include <boost\function.hpp>
-#include <boost\thread.hpp>
+#include <boost/function.hpp>
+#include <boost/thread.hpp>
 #include "Proxy.hpp"
 #include "Future.hpp"
 #include "MethodRequest.hpp"
 #include <queue>
 
 using namespace std;
-
+using namespace ActiveObject;
 //kolejka 5ciu komunikatow
 class QueueServant: public FutureContentCreator
 {

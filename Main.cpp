@@ -1,15 +1,17 @@
 #ifndef _MAIN_
 #define _MAIN_
 
+#include <string>
+#include <boost/function.hpp>
 #include "Future.hpp"
 #include "Example1.hpp"
 #include "SimpleLog.hpp"
-#include <boost\bind.hpp>
-#include <boost\function.hpp>
-#include <boost\thread.hpp>
+#include <boost/bind.hpp>
+#include <boost/thread.hpp>
 #include "Example2_kolejka.hpp"
 
 using namespace std;
+using namespace ActiveObject;
 
 void testFuture()
 {
@@ -20,7 +22,7 @@ void testFuture()
 
 void testSyncProxy()
 {
-	Logger log("MAIN");
+	Logger log("MAIN",3);
 	log << "//////////////////Test proxy///////////////////" << endl;
 	for(int i=0;i<3;++i)
 	{
@@ -351,7 +353,7 @@ void testGuard()
 void testVoidInvokes()
 {
 	Logger log("MAIN");
-	log << "//////////////////Test metod void, zobaczymy, czy siê wykonaj¹///////////////////" << endl;
+	log << "//////////////////Test metod void, zobaczymy, czy sie wykonaja///////////////////" << endl;
 
 	log << "//////////////////tworze proxy///////////////////" << endl;
 	QueueProxy p(1);
