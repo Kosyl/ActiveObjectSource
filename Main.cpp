@@ -11,6 +11,9 @@
 #include <boost/thread.hpp>
 #include "Example2_kolejka.hpp"
 #include <boost/test/unit_test.hpp>
+#include <boost/any.hpp>
+
+#define CHECK(x) {bool tmp=x;log.lock();BOOST_CHECK_IMPL( (tmp), BOOST_TEST_STRINGIZE( x ), CHECK, CHECK_PRED );log.unlock();}
 
 using namespace std;
 using namespace ActiveObject;
@@ -58,11 +61,12 @@ void testSimpleInvoke()
 	f.setFunction(callback);
 
 	log << "//////////////////czekam...///////////////////" << endl;
+	CHECK(f.isDone()==true);
 	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-
+	CHECK(f.hasException()==true);
 	log << "//////////////////wynik///////////////////" << endl;
 	log << "//////////////////" << f.getValue() << "///////////////////" << endl;
-
+	BOOST_CHECK(f.getValue()==7);
 	log << "//////////////////wolam future dzielenia///////////////////" << endl;
 }
 
