@@ -2,8 +2,8 @@
 * @file Scheduler.hpp
 * @author Michal Kosyl
 * @author Marta Kuzak
-* Active Object implementation.
-* Scheduler's task is to take Functors from the ActivationQueue and make Servants execute them. It runs in different thread than its client.
+* @details Active Object implementation.
+* @details Scheduler's task is to take Functors from the ActivationQueue and make Servants execute them. It runs in different thread than its client.
 */
 #ifndef SCHEDULER_HPP
 #define SCHEDULER_HPP
@@ -42,7 +42,7 @@ private:
 	mutable boost::mutex mutex_;
 	/**
 	* Flag that indicates whether ActivationQueue is to be destroyed.
-	* @see bool stop()
+	* @see void stopOrder()
 	*/
 	volatile bool shouldIEnd_;
 	/**

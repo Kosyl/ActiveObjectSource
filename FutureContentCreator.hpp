@@ -2,7 +2,7 @@
 * @file FutureContentCreator.hpp
 * @author Michal Kosyl
 * @author Marta Kuzak
-* Active Object implementation.
+* @details Active Object implementation.
 * Future allows a client to obtain the state, progress and results of method invocations.
 */
 #ifndef _FC_CREATOR_

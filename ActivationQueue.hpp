@@ -2,8 +2,8 @@
 * @file ActivationQueue.hpp
 * @author Michal Kosyl
 * @author Marta Kuzak
-* Active Object implementation.
-* ActivationQueue is a queue for client's requests. 
+* @details Active Object implementation.
+* @details ActivationQueue is a queue for client's requests. 
 */
 #ifndef ACTIVATIONQUEUE_HPP
 #define ACTIVATIONQUEUE_HPP

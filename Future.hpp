@@ -2,8 +2,8 @@
 * @file Future.hpp
 * @author Michal Kosyl
 * @author Marta Kuzak
-* Active Object implementation.
-* Future allows a client to obtain the state, progress and results of method invocations.
+* @details Active Object implementation.
+* @details Future allows a client to obtain the state, progress and results of method invocations.
 */
 #ifndef _FUTURE_
 #define _FUTURE_

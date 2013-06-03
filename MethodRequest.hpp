@@ -2,7 +2,7 @@
 * @file MethodRequest.hpp
 * @author Michal Kosyl
 * @author Marta Kuzak
-* Active Object implementation.
+* @details Active Object implementation.
 * MethodRequest passes information about client request such as method parametres or type of result from Proxy to Scheduler.
 */
 #ifndef _COMMAND_
@@ -54,6 +54,7 @@ namespace ActiveObject
     /**
      * @brief Constructs Functor with a given FutureContent and guard function.
      * @param content Pointer to FutureContent
+	 * @param guard guard function
      */
     Functor(boost::shared_ptr<FutureContent> content, boost::function<bool(Servant*)> guard):
     content_(content),
@@ -70,7 +71,7 @@ namespace ActiveObject
     }
     /**
      * @brief Makes given servant execute method.
-     * @param Pointer to servant
+     * @param servant Pointer to servant
      */
     virtual void execute(boost::shared_ptr<Servant> servant)=0;
     
