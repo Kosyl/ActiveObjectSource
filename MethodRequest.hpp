@@ -3,7 +3,7 @@
 * @author Michal Kosyl
 * @author Marta Kuzak
 * @details Active Object implementation.
-* MethodRequest passes information about client request such as method parametres or type of result from Proxy to Scheduler.
+* @details MethodRequest passes information about client request such as method parametres or type of result from Proxy to Scheduler.
 */
 #ifndef _COMMAND_
 #define _COMMAND_

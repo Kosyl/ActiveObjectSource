@@ -3,7 +3,7 @@
 * @author Michal Kosyl
 * @author Marta Kuzak
 * @details Active Object implementation.
-* Future allows a client to obtain the state, progress and results of method invocations.
+* @details Future allows a client to obtain the state, progress and results of method invocations.
 */
 #ifndef _FC_CREATOR_
 #define _FC_CREATOR_

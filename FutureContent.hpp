@@ -3,7 +3,7 @@
 * @author Michal Kosyl
 * @author Marta Kuzak
 * @details Active Object implementation.
-* FutureContent contains info about the state, progress and results of method invocations which are available for client through Future.
+* @details FutureContent contains info about the state, progress and results of method invocations which are available for client through Future.
 * All the info about method invocations are set by FutureContentCreator.
 */
 #ifndef _FUTURE_CONTENT_
