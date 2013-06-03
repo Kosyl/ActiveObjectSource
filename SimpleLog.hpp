@@ -189,7 +189,6 @@ namespace ActiveObject
 				ss << s;
 			}
 		}
-
 	};
 
 	unique_ptr<boost::mutex> Logger::mutex_(new boost::mutex());
