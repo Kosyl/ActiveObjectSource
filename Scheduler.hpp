@@ -58,10 +58,10 @@ public:
 		queue_(q),
 		servant_(s),
 		shouldIEnd_(false),
-		log_("Scheduler",3),
-		thread_(boost::thread(boost::bind(&Scheduler::run,this)))
+		log_("Scheduler",3)
 	{
 		DLOG(log_ << "constructor" << endl);
+		thread_=boost::thread(boost::bind(&Scheduler::run,this));
 	}
 	/**
 	* @brief Destructor.
@@ -69,6 +69,7 @@ public:
 	~Scheduler(void) 
 	{
 		DLOG(log_ << "destructor" << endl);
+		cout<<"Karramva"<<endl;
 	}
 	/**
 	* Sets shouldIEnd to true and waits for its thread end.

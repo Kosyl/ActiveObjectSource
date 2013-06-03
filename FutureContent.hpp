@@ -73,12 +73,12 @@ namespace ActiveObject
     
     typedef boost::mutex::scoped_lock sLock;
     /**
-     * It sets progress to 0, state to FutureState::QUEUED and exception to NULL.
+     * It sets progress to 0, state to QUEUED and exception to NULL.
      * @brief Constructor.
      */
     FutureContent():
     progress_(0.0),
-    state_(FutureState::QUEUED),
+    state_(QUEUED),
     log_("Content",6)
     {
       DLOG(log_ << "constructor" << endl);
@@ -112,8 +112,8 @@ namespace ActiveObject
     bool isDone() const
     {
       sLock lock(mutex_);
-      DLOG(log_ << "isDone (" << (state_==FutureState::DONE?true:false) << ")" << endl);
-      return (state_==FutureState::DONE?true:false);
+      DLOG(log_ << "isDone (" << (state_==DONE?true:false) << ")" << endl);
+      return (state_==DONE?true:false);
     }
     /**
      * @brief Test whether there is an exception in the client request.
@@ -143,11 +143,11 @@ namespace ActiveObject
     {
       sLock lock(mutex_);
       DLOG(log_ << "set exception: ()" << endl);
-      state_=FutureState::EXCEPTION;
+      state_=EXCEPTION;
       exception_=e;
     }
     /**
-     * If there is no more observers of the request, it sets state to FutureState::CANCELLED.
+     * If there is no more observers of the request, it sets state to CANCELLED.
      * @brief Cancel connection with the given connection.
      * @param c Connection to be cancelled.
      */
@@ -162,7 +162,7 @@ namespace ActiveObject
       DLOG(log_ << "cancel, remaining observers: " << notifyObservers_.num_slots() << endl);
       if(notifyObservers_.empty())
       {
-	state_ = FutureState::CANCELLED;
+	state_ = CANCELLED;
 	DLOG(log_ << "cancel - brak obserwatorow, ustawiam cancel" << endl);
       }
       //exception_ = boost::copy_exception(new RequestCancelledException());
@@ -174,8 +174,8 @@ namespace ActiveObject
     bool isCancelled() const
     {
       sLock lock(mutex_);
-      DLOG(log_ << "isCancelled (" << (state_==FutureState::CANCELLED?true:false) << ")" << endl);
-      return (state_==FutureState::CANCELLED?true:false);
+      DLOG(log_ << "isCancelled (" << (state_==CANCELLED?true:false) << ")" << endl);
+      return (state_==CANCELLED?true:false);
     }
     
     int getNumObservers() const
@@ -204,7 +204,7 @@ namespace ActiveObject
       state_=fs;
     }
     /**
-     * After setting a value it sets progress to 1.0, state to FutureState::DONE and notifies all the observers.
+     * After setting a value it sets progress to 1.0, state to DONE and notifies all the observers.
      * @brief Sets value of method request.
      * @param val result of method invocation.
      */
@@ -214,13 +214,13 @@ namespace ActiveObject
       sLock lock(mutex_);
       DLOG(log_ << "setValue (" << val << ")" << endl);
       value_=val;
-      state_=FutureState::DONE;
+      state_=DONE;
       progress_=1.0;
       waitingFutures_.notify_all();
     }
     
     /**
-     * If the request is queued or in progress, it waits until method is done. When the state is FutureState::EXCEPTION, it rethrows exception. s
+     * If the request is queued or in progress, it waits until method is done. When the state is EXCEPTION, it rethrows exception. s
      * @brief Return value of the method invocation.
      * @return value of the method invocation.
      */
@@ -235,7 +235,7 @@ namespace ActiveObject
 	boost::rethrow_exception(exception_);
       }
       
-      while(!(state_==FutureState::DONE || state_==FutureState::CANCELLED || state_==FutureState::EXCEPTION))
+      while(!(state_==DONE || state_==CANCELLED || state_==EXCEPTION))
       {
 	DLOG(log_ << "getValue czeka..." << endl);
 	waitingFutures_.wait(lock);

@@ -110,13 +110,13 @@ namespace ActiveObject
 	return pFutureContent_.lock()->isCancelled();
       }
       /**
-       * @brief Sets FutureContent state to FutureState::CANCELLED
+       * @brief Sets FutureContent state to CANCELLED
        */
       void setCancelled()
       {
 	DLOG(log_ << "setException ()" << endl);
 	//pFutureContent_->setException(boost::copy_exception(new RequestCancelledException()));
-	pFutureContent_.lock()->setState(FutureState::CANCELLED);
+	pFutureContent_.lock()->setState(CANCELLED);
       }
       
       Logger log_;

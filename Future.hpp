@@ -55,10 +55,10 @@ namespace ActiveObject
 	 */
 	FutureBase(boost::shared_ptr<FutureContent> target):
 	pFutureContent_(target),
-	progressSlot_(boost::bind(&FutureBase::dummyCallback,this,_1)),
 	log_("Future",7)
 	{	
 	    //DLOG(log_ << "constructor" << endl);
+		progressSlot_=boost::bind(&FutureBase::dummyCallback,this,_1);
 	    progressConnection_=pFutureContent_->attachProgressObserver(progressSlot_);
 	}
 	

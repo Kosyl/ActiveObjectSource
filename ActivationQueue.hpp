@@ -1,3 +1,10 @@
+/**
+* @file ActivationQueue.hpp
+* @author Michal Kosyl
+* @author Marta Kuzak
+* Active Object implementation.
+* ActivationQueue is a queue for client's requests. 
+*/
 #ifndef ACTIVATIONQUEUE_HPP
 #define ACTIVATIONQUEUE_HPP
 
@@ -36,9 +43,14 @@ private:
 	*/
 	volatile bool shouldIEnd_;
 
-	// - opisywanie mutexow itp chyba by by³o przesada :D
 	mutable boost::mutex mutex_;
+	/**
+	* Makes thread wait when it tries to take Functor from the empy queue and notifies about new Functor pushed to the queue.
+	*/
 	boost::condition_variable cond_;
+	/**
+	* KARDAMON
+	*/
 	boost::condition_variable refreshGuards_;
 
 
@@ -77,10 +89,11 @@ public:
 	*/
 	ActivationQueue(unsigned long refreshPeriod): 
 		shouldIEnd_(false),
-		guardedCount_(0),	refreshGuardsThread_(boost::thread(boost::bind(&ActivationQueue::refreshFunction,this,refreshPeriod))),
+		guardedCount_(0),	
 		log_("AQ",4)
 	{
 		DLOG(log_<<"constructor"<<endl);
+		refreshGuardsThread_=boost::thread(boost::bind(&ActivationQueue::refreshFunction,this,refreshPeriod));
 	}
 
 	/**
@@ -156,7 +169,7 @@ public:
 			return NULL;
 		}
 
-		Functor<Servant>* tmp;
+		Functor<Servant>* tmp=NULL;
 		while(guardedCount_<queue_.size())
 		{
 			DLOG(log_<<"sprawdzam guarda po raz " << guardedCount_ <<endl);
