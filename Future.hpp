@@ -1,3 +1,10 @@
+/**
+* @file Future.hpp
+* @author Michal Kosyl
+* @author Marta Kuzak
+* Active Object implementation.
+* Future allows a client to obtain the state, progress and results of method invocations.
+*/
 #ifndef _FUTURE_
 #define _FUTURE_
 
@@ -38,7 +45,9 @@ namespace ActiveObject
 	 * Connection to the progress notification signal
 	 */
 	boost::signals::connection progressConnection_;
-	
+	/**
+	* Thread-safe logger.
+	*/
 	mutable Logger log_;
 	
 	/**
@@ -63,7 +72,7 @@ namespace ActiveObject
 	}
 	
 	/**
-	 * Copy constructor. Binds the default (empty) progress notification slot to the FutureContent
+	 * Copy constructor. Binds the default (empty) progress notification slot to the FutureContent.
 	 * Copies the progress slot function as well.
 	 */
 	FutureBase(const FutureBase& rhs):
@@ -104,8 +113,6 @@ namespace ActiveObject
 	 * @param fun function (or any object providing operator()(double) ) that is supposed to be the slot.
 	 * @tparam FuncType 
 	 */
-	//- dlaczego template?
-	//- ¿eby dzia³a³ inny function, b::bind, wskaŸnik na funkcjê albo obiekt z operatorem ()
 	template<typename FuncType>
 	void setFunction(FuncType fun)
 	{
@@ -227,12 +234,12 @@ namespace ActiveObject
 	 * The method waits until the request is done and then return its value.
 	 * @brief Returns result of client request.
 	 * @return result of the client invocation.
-	 * @throw RequestCancelledException if pFutureContent_ doesn not exist.
+	 * @throw RequestCancelledException if pFutureContent_ does not exist.
 	 */
 	T getValue() const
 	{
 	    if(!pFutureContent_)
-		throw RequestCancelledException();
+			throw RequestCancelledException();
 	    //DLOG(log_ << "getValue ()" << endl);
 		return boost::any_cast<T>(pFutureContent_->getValue());
 	}
@@ -306,7 +313,7 @@ namespace ActiveObject
 	bool getValue() const
 	{
 	    if(!pFutureContent_)
-		throw RequestCancelledException();
+			throw RequestCancelledException();
 	    //DLOG(log_ << "getValue ()" << endl);
 		return boost::any_cast<bool>(pFutureContent_->getValue());
 	}

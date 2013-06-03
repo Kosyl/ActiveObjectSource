@@ -1,3 +1,10 @@
+/**
+* @file FutureContentCreator.hpp
+* @author Michal Kosyl
+* @author Marta Kuzak
+* Active Object implementation.
+* Future allows a client to obtain the state, progress and results of method invocations.
+*/
 #ifndef _FC_CREATOR_
 #define _FC_CREATOR_
 
@@ -10,9 +17,6 @@
 
 namespace ActiveObject
 {
-  //to jest taki poprzedni Promise
-  //teraz dziedziczy po nim kazdy Servant, wiec zmienilem nazwe na bardziej wymowna
-  //czyli to taki "pisarz" contentu
   /**
    * Enables setting progress, state and result of client request. 
    * @brief Writer of FutureContent
@@ -22,7 +26,7 @@ namespace ActiveObject
     
   public:
     /**
-     * @brief Constructor.
+     * @brief Constructs FutureContentCreator.
      */
     FutureContentCreator():
     log_("Creator",5)
@@ -69,8 +73,8 @@ namespace ActiveObject
        */
       void setProgress(const double& progress)
       {
-	DLOG(log_ << "setProgress (" << progress << ")" << endl);
-	pFutureContent_.lock()->setProgress(progress);
+		DLOG(log_ << "setProgress (" << progress << ")" << endl);
+		pFutureContent_.lock()->setProgress(progress);
       }
       /**
        * @brief Sets state of the method invocation.
@@ -78,8 +82,8 @@ namespace ActiveObject
        */
       void setState(const FutureState fs)
       {
-	DLOG(log_ << "setState (" << fs << ")" << endl);
-	pFutureContent_.lock()->setState(fs);
+		DLOG(log_ << "setState (" << fs << ")" << endl);
+		pFutureContent_.lock()->setState(fs);
       }
       /**
        * @brief Sets exception of the method invocation.
@@ -87,8 +91,8 @@ namespace ActiveObject
        */
       void setException(boost::exception_ptr& e)
       {
-	DLOG(log_ << "setException ()" << endl);
-	pFutureContent_.lock()->setException(e);
+		DLOG(log_ << "setException ()" << endl);
+		pFutureContent_.lock()->setException(e);
       }
       /**
        * @brief Sets value of method request.
@@ -97,8 +101,8 @@ namespace ActiveObject
       template<typename T>
       void setValue(const T& val)
       {
-	DLOG(log_ << "setValue (" << val << ")" << endl);
-	pFutureContent_.lock()->setValue(val);
+		DLOG(log_ << "setValue (" << val << ")" << endl);
+		pFutureContent_.lock()->setValue(val);
       }
       /**
        * @brief Indicates whether the invocation is cancelled.
@@ -106,26 +110,25 @@ namespace ActiveObject
        */
       bool isCancelled()
       {
-	DLOG(log_ << "isCancelled ()" << endl);
-	return pFutureContent_.lock()->isCancelled();
+		DLOG(log_ << "isCancelled ()" << endl);
+		return pFutureContent_.lock()->isCancelled();
       }
       /**
        * @brief Sets FutureContent state to CANCELLED
        */
       void setCancelled()
       {
-	DLOG(log_ << "setException ()" << endl);
-	//pFutureContent_->setException(boost::copy_exception(new RequestCancelledException()));
-	pFutureContent_.lock()->setState(CANCELLED);
+		DLOG(log_ << "setException ()" << endl);
+		//pFutureContent_->setException(boost::copy_exception(new RequestCancelledException()));
+		pFutureContent_.lock()->setState(CANCELLED);
       }
       
       Logger log_;
       
   private:
     /**
-     * Pointer to FutureContent to be written to.
+     * Pointer to FutureContent. 
      */
-    //-jak to napisaæ po angielskiemu?
     boost::weak_ptr<FutureContent> pFutureContent_;
   };
   

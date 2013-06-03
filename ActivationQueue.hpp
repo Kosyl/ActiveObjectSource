@@ -97,6 +97,20 @@ public:
 	}
 
 	/**
+	* Destructor
+	* Cleans up its internal queue
+	*/
+	~ActivationQueue(void)
+	{
+		DLOG(log_<<"destructor"<<endl);
+		while(!queue_.empty())
+		{
+			Functor<Servant>* tmp= queue_.front();
+			queue_.pop();
+			delete tmp;
+		}
+	}
+	/**
 	* Guard refresh function to be run in a separate thread
 	* @param refreshPeriod period of guard-check [ms]
 	*/
@@ -115,23 +129,9 @@ public:
 		DLOG(log_<<"koncze odswiezanie guards"<<endl);
 	}
 
-	/**
-	* Destructor
-	* Cleans up its internal queue
-	*/
-	~ActivationQueue(void)
-	{
-		DLOG(log_<<"destructor"<<endl);
-		while(!queue_.empty())
-		{
-			Functor<Servant>* tmp= queue_.front();
-			queue_.pop();
-			delete tmp;
-		}
-	}
 
 	/**
-	* Pushes element into the queue and notifies one thread about the event.
+	* Pushes element into the queue and notifies one thread.
 	* @brief pushes Functor into the queue.
 	* @param f Functor pointer to a specific MethodRequest to be pushed into ActivationQueue
 	*/
@@ -236,7 +236,7 @@ public:
 
 	/**
 	* Makes ActivationQueue stop waiting for next Functor in the queue.
-	* Also, notifies the Schedulers to stop waiting
+	* Also, notifies the Schedulers to stop waiting.
 	*/
 	void End() 
 	{

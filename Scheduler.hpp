@@ -1,3 +1,10 @@
+/**
+* @file Scheduler.hpp
+* @author Michal Kosyl
+* @author Marta Kuzak
+* Active Object implementation.
+* Scheduler's task is to take Functors from the ActivationQueue and make Servants execute them. It runs in different thread than its client.
+*/
 #ifndef SCHEDULER_HPP
 #define SCHEDULER_HPP
 
@@ -69,7 +76,6 @@ public:
 	~Scheduler(void) 
 	{
 		DLOG(log_ << "destructor" << endl);
-		cout<<"Karramva"<<endl;
 	}
 	/**
 	* Sets shouldIEnd to true and waits for its thread end.

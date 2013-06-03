@@ -1,3 +1,11 @@
+/**
+* @file FutureContent.hpp
+* @author Michal Kosyl
+* @author Marta Kuzak
+* Active Object implementation.
+* FutureContent contains info about the state, progress and results of method invocations which are available for client through Future.
+* All the info about method invocations are set by FutureContentCreator.
+*/
 #ifndef _FUTURE_CONTENT_
 #define _FUTURE_CONTENT_
 
@@ -9,7 +17,6 @@ namespace ActiveObject
 {
   
   /**
-   * @enum 
    * @brief State of the method invocation.
    */
   enum FutureState 
@@ -21,7 +28,8 @@ namespace ActiveObject
     DONE /**<Method request is done*/
   };
   /**
-   * @brief RequestCancelledException ???????????????????dopisze jak ulozy mi sie w glowie ladne zdanie
+   * @brief RequestCancelledException thrown when try to refer to request that is cancelled.
+   * KARDAMON: Czy to w ogóle jest teraz wykorzystywane?
    */
   class RequestCancelledException: public exception
   {
@@ -59,6 +67,9 @@ namespace ActiveObject
     volatile FutureState state_;
     
     mutable boost::mutex mutex_;
+	/**
+	* To notify Future when FutureContent changes
+	*/
     boost::condition_variable waitingFutures_;
     /**
      * Signal that notifies observers when the progress is changed.
@@ -157,13 +168,13 @@ namespace ActiveObject
       
       if(c.connected())
       {
-	c.disconnect();
+		c.disconnect();
       }
       DLOG(log_ << "cancel, remaining observers: " << notifyObservers_.num_slots() << endl);
       if(notifyObservers_.empty())
       {
-	state_ = CANCELLED;
-	DLOG(log_ << "cancel - brak obserwatorow, ustawiam cancel" << endl);
+		state_ = CANCELLED;
+		DLOG(log_ << "cancel - brak obserwatorow, ustawiam cancel" << endl);
       }
       //exception_ = boost::copy_exception(new RequestCancelledException());
     }
@@ -223,35 +234,36 @@ namespace ActiveObject
      * If the request is queued or in progress, it waits until method is done. When the state is EXCEPTION, it rethrows exception. s
      * @brief Return value of the method invocation.
      * @return value of the method invocation.
+	 * @throw exception if FutureContent has exception.
      */
-    //- a kiedy CANCELLED?
+    //- a kiedy CANCELLED? KARDAMON
     virtual boost::any getValue()//powinno blokowac, az bedzie ok; na razie nie mamy wielu w¹tków, wiêc zobaczymy jak to dzia³a za jakieœ 2 miesi¹ce kiedy je w koñcu dodamy
     {
       sLock lock(mutex_);
       DLOG(log_ << "getValue" << endl);
       if(exception_)
       {
-	DLOG(log_ << "getValue - exception!" << endl);
-	boost::rethrow_exception(exception_);
+		DLOG(log_ << "getValue - exception!" << endl);
+		boost::rethrow_exception(exception_);
       }
       
       while(!(state_==DONE || state_==CANCELLED || state_==EXCEPTION))
       {
-	DLOG(log_ << "getValue czeka..." << endl);
-	waitingFutures_.wait(lock);
+		DLOG(log_ << "getValue czeka..." << endl);
+		waitingFutures_.wait(lock);
       }
       
       if(exception_)
       {
-	DLOG(log_ << "getValue - exception!" << endl);
-	boost::rethrow_exception(exception_);
+		DLOG(log_ << "getValue - exception!" << endl);
+		boost::rethrow_exception(exception_);
       }
       
       boost::any res = value_;
       return res;
     }
     /**
-     * @brief Destructor
+     * @brief Destructs FutureContent.
      */
     ~FutureContent()
     {
