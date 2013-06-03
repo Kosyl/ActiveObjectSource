@@ -1,8 +1,8 @@
 #ifndef _MAIN_
 #define _MAIN_
 
-#define BOOST_TEST_MAIN
-#define BOOST_TEST_DYN_LINK
+//#define BOOST_TEST_MAIN
+//#define BOOST_TEST_DYN_LINK
 #include <string>
 #include <boost/function.hpp>
 #include "Future.hpp"
@@ -11,10 +11,11 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include "Example2_kolejka.hpp"
-#include <boost/test/unit_test.hpp>
+//#include <boost/test/unit_test.hpp>
 #include <boost/any.hpp>
+#include <boost/test/minimal.hpp>
 
-#define CHECK(x) {bool tmp=x;log.lock();BOOST_CHECK_IMPL( (tmp), BOOST_TEST_STRINGIZE( x ), CHECK, CHECK_PRED );log.unlock();}
+//#define CHECK(x) {bool tmp=x;log.lock();BOOST_CHECK_IMPL( (tmp), BOOST_TEST_STRINGIZE( x ), CHECK, CHECK_PRED );log.unlock();}
 
 using namespace std;
 using namespace ActiveObject;
@@ -41,7 +42,7 @@ void testSyncProxy()
 	}
 }
 
-BOOST_AUTO_TEST_SUITE( TestToolsDemonstration )
+//BOOST_AUTO_TEST_SUITE( TestToolsDemonstration )
 void testSimpleInvoke()
 {
 	Logger log("MAIN");
@@ -49,7 +50,7 @@ void testSimpleInvoke()
 
 	log << "//////////////////tworze proxy///////////////////" << endl;
 	//podstawowe komunikaty
-	BOOST_WARN(3==2); //pojawia sie warning (gdzie? na pewno nie na konsoli), ale test dalej trwa i nie konczy sie negatywnie
+	//BOOST_WARN(3==2); //pojawia sie warning (gdzie? na pewno nie na konsoli), ale test dalej trwa i nie konczy sie negatywnie
 	BOOST_CHECK(3==4); //wyrzuca blad na ekranie, test trwa dalej i konczy sie negatywnie
 	//BOOST_REQUIRE(1==2); //wyrzuca blad i konczy test, ktory konczy sie negatywnie
 	CalcProxy p(1);
@@ -65,9 +66,9 @@ void testSimpleInvoke()
 	f.setFunction(callback);
 
 	log << "//////////////////czekam...///////////////////" << endl;
-	CHECK(f.isDone()==true);
+	BOOST_CHECK(f.isDone()==true);
 	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-	CHECK(f.hasException()==true);
+	BOOST_CHECK(f.hasException()==true);
 	log << "//////////////////wynik///////////////////" << endl;
 	log << "//////////////////" << f.getValue() << "///////////////////" << endl;
 	BOOST_CHECK(f.getValue()==7);
@@ -455,8 +456,8 @@ void testRefreshPeriod()
 	log << "//////////////////kasujemy wsio...///////////////////" << endl;
 }
 
-//int main(int argc, char* argv[])
-BOOST_AUTO_TEST_CASE(Main)
+int test_main(int argc, char* argv[])
+//BOOST_AUTO_TEST_CASE(Main)
 {	
 	cout<<"TESTOWANIE ACTIVE OBJECT"<<endl;
 	int prog= 1;
@@ -499,9 +500,9 @@ BOOST_AUTO_TEST_CASE(Main)
 		else if(prog==13) testGuardMultipleThreads();
 		else if(prog==14) testRefreshPeriod();
 	}
-/*
-	return EXIT_SUCCESS;*/
+
+	return EXIT_SUCCESS;
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+//BOOST_AUTO_TEST_SUITE_END()
 #endif
