@@ -12,7 +12,6 @@
 #include <boost/thread.hpp>
 #include "Example2_kolejka.hpp"
 #include <boost/test/unit_test.hpp>
-#include <boost/any.hpp>
 
 #define CHECK(x) {bool tmp=x;log.lock();BOOST_CHECK_IMPL( (tmp), BOOST_TEST_STRINGIZE( x ), CHECK, CHECK_PRED );log.unlock();}
 
@@ -41,7 +40,7 @@ void testSyncProxy()
 	}
 }
 
-BOOST_AUTO_TEST_SUITE( TestToolsDemonstration )
+//BOOST_AUTO_TEST_SUITE( TestToolsDemonstration )
 void testSimpleInvoke()
 {
 	Logger log("MAIN");
@@ -455,8 +454,8 @@ void testRefreshPeriod()
 	log << "//////////////////kasujemy wsio...///////////////////" << endl;
 }
 
-//int main(int argc, char* argv[])
-BOOST_AUTO_TEST_CASE(Main)
+int test_main(int, char* [])
+//BOOST_AUTO_TEST_CASE(Main)
 {	
 	cout<<"TESTOWANIE ACTIVE OBJECT"<<endl;
 	int prog= 1;
@@ -499,9 +498,9 @@ BOOST_AUTO_TEST_CASE(Main)
 		else if(prog==13) testGuardMultipleThreads();
 		else if(prog==14) testRefreshPeriod();
 	}
-/*
-	return EXIT_SUCCESS;*/
+	
+	return EXIT_SUCCESS;
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+//BOOST_AUTO_TEST_SUITE_END()
 #endif
