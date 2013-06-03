@@ -2,6 +2,7 @@
 #define _MAIN_
 
 #define BOOST_TEST_MAIN
+#define BOOST_TEST_DYN_LINK
 #include <string>
 #include <boost/function.hpp>
 #include "Future.hpp"
@@ -17,6 +18,8 @@
 
 using namespace std;
 using namespace ActiveObject;
+using namespace boost::unit_test;
+using namespace boost::unit_test_framework;
 
 void testFuture()
 {
@@ -38,6 +41,7 @@ void testSyncProxy()
 	}
 }
 
+BOOST_AUTO_TEST_SUITE( TestToolsDemonstration )
 void testSimpleInvoke()
 {
 	Logger log("MAIN");
@@ -69,6 +73,7 @@ void testSimpleInvoke()
 	BOOST_CHECK(f.getValue()==7);
 	log << "//////////////////wolam future dzielenia///////////////////" << endl;
 }
+
 
 void testException()
 {
@@ -494,9 +499,9 @@ BOOST_AUTO_TEST_CASE(Main)
 		else if(prog==13) testGuardMultipleThreads();
 		else if(prog==14) testRefreshPeriod();
 	}
-	system("PAUSE");
 /*
 	return EXIT_SUCCESS;*/
 }
 
+BOOST_AUTO_TEST_SUITE_END()
 #endif

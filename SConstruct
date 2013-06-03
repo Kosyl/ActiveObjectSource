@@ -10,7 +10,7 @@ if(platform.system() == "Linux"):
    e.Append( LINKFLAGS = '-Wall -pthread' )
    e.Append( CPPPATH = ['/usr/local/include'] )
    e.Append( LIBPATH = ['/usr/local/lib'] )
-   e.Append( LIBS = [ 'boost_thread','boost_signals' ] )
+   e.Append( LIBS = [ 'boost_thread','boost_signals','boost_unit_test_framework' ] )
    e.Append( CCFLAGS = ['-D _LINPLATFORM'] )
    if int(debug):
 	e.Append(CCFLAGS = '-D _DEBUG')
