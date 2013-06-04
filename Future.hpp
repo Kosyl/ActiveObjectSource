@@ -3,7 +3,9 @@
 * @author Michal Kosyl
 * @author Marta Kuzak
 * @details Active Object implementation.
-* @details Future allows a client to obtain the state, progress and results of method invocations.
+* @details Future allows a client to obtain the state, progress and results of method invocations. Client can get this info by calling 
+* simple getProgress, getState or getValue methods or by attaching observers- boost::function objects that are called everytime
+* progress changes.
 */
 #ifndef _FUTURE_
 #define _FUTURE_
@@ -22,7 +24,7 @@ using namespace std;
 namespace ActiveObject
 {
     /**
-     * Basis class for Futures
+     * Basis class for Futures. 
      * It has a pointer to FutureContent which keeps result, progress and state of client request. 
      * @brief Basis class for Futures
      * @tparam T Type of return value of method invoked.
@@ -194,8 +196,9 @@ namespace ActiveObject
     };
     
     /**
-     * It has a pointer to FutureContent which keeps result (derived from the base), progress and state of client request.
-     * Also, the template specifies the type of return value.
+     * @details It has a pointer to FutureContent which keeps result (derived from the base), progress and state of client request.
+     * Also, the template specifies the type of return value. 
+	 * @details Make sure return value type has a copy constructor.
      * @brief Future allows a client to obtain the result, progress and state of method invocation.
      * @tparam T Type of return value of method invoked.
      */
