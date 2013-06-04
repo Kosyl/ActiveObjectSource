@@ -21,7 +21,7 @@ elif(platform.system() == "Windows"):
    e.Append( CCFLAGS = ['-D_WINPLATFORM'] )
    if int(debug):
 	e.Append( CPPFLAGS = ' /EHsc /D "WIN32" /D "_WIN32_WINNT#0x501" /D "_CONSOLE" /MDd' )
-	e.Append(CCFLAGS = '-D_DEBUG
+	e.Append(CCFLAGS = '-D_DEBUG')
    else:
 	e.Append( CPPFLAGS = ' /EHsc /D "WIN32" /D "_WIN32_WINNT#0x501" /D "_CONSOLE" /MD' )
 else:

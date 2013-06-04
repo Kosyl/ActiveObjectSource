@@ -18,6 +18,21 @@
 namespace ActiveObject
 {
 
+/**
+* thrown when resfreshPeriod parameter is non-positive.
+* refreshPeriod indicates how often result of guard method is checked. 
+*/
+class NonPositivePeriodException: public std::exception
+{
+public:
+	NonPositivePeriodException(){}
+
+	virtual const char* what()
+	{
+		return "Refresh period has to be greater than 0!";
+	}
+};
+
 	/**
 	* ActivationQueue is created by Proxy that pushes Functors into it. Functors are dequeued by Schedulers.
 	* @brief A thread-safe queue of Functor objects. 
