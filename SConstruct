@@ -16,12 +16,14 @@ if(platform.system() == "Linux"):
 	e.Append(CCFLAGS = '-D _DEBUG')
 
 elif(platform.system() == "Windows"):
-   e.Append( CPPFLAGS = ' /EHsc /D "WIN32" /D "_WIN32_WINNT#0x501" /D "_CONSOLE" /W4 /MD' )
    e.Append( CPPPATH = [ 'c:/Program Files/Boost/boost_1_53_0'] )
    e.Append( LIBPATH = [ 'C:/Program Files/Boost/boost_1_53_0/stage/lib' ] )
    e.Append( CCFLAGS = ['-D_WINPLATFORM'] )
    if int(debug):
-	e.Append(CCFLAGS = '-D_DEBUG')
+	e.Append( CPPFLAGS = ' /EHsc /D "WIN32" /D "_WIN32_WINNT#0x501" /D "_CONSOLE" /MDd' )
+	e.Append(CCFLAGS = '-D_DEBUG
+   else:
+	e.Append( CPPFLAGS = ' /EHsc /D "WIN32" /D "_WIN32_WINNT#0x501" /D "_CONSOLE" /MD' )
 else:
    print platform.system() + " not supported"
 
