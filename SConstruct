@@ -3,6 +3,7 @@ import platform, shutil
 e = Environment()
 
 debug = ARGUMENTS.get('debug', 0)
+test= ARGUMENTS.get('test', 0)
 
 if(platform.system() == "Linux"):
    print "platform:linux"
@@ -28,6 +29,12 @@ else:
    print platform.system() + " not supported"
 
 if int(debug):
-	e.Program(target = 'ActObjDeb', source = 'Tests.cpp')
+	if int(test):
+		e.Program(target = 'TestsDeb', source = 'Tests.cpp')
+	else:
+		e.Program(target = 'SimpleAppDeb', source = 'SimpleApp.cpp')
 else: 
-	e.Program(target = 'ActObj', source = 'Tests.cpp')
+	if int(test):
+		e.Program(target = 'Tests', source = 'Tests.cpp')
+	else:
+		e.Program(target = 'SimpleApp', source = 'SimpleApp.cpp')
