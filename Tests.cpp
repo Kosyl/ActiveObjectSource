@@ -1,15 +1,16 @@
-#ifndef _MAIN_
-#define _MAIN_
+#ifndef _TESTS_
+#define _TESTS_
 
-#include <string>
-#include <boost/function.hpp>
 #include "Future.hpp"
 #include "Example1.hpp"
 #include "SimpleLog.hpp"
+#include "Example2_kolejka.hpp"
+#include <string>
+#include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
-#include "Example2_kolejka.hpp"
 #include <boost/test/minimal.hpp>
+#include <boost/exception_ptr.hpp>
 
 #define CHECK(exp) {bool tmp=exp;log.lock();(tmp)? static_cast<void>(0): boost::minimal_test::report_error(#exp,__FILE__,__LINE__, BOOST_CURRENT_FUNCTION);log.unlock();}
 #define REQUIRE(exp){ bool tmp=exp;log.lock();(tmp)? static_cast<void>(0): boost::minimal_test::report_critical_error(#exp,__FILE__,__LINE__,BOOST_CURRENT_FUNCTION);log.unlock();}
@@ -21,33 +22,98 @@ using namespace boost::unit_test_framework;
 
 void testFuture()
 {
-	Logger log("MAIN");
-	log << "//////////////////Test rzutowania///////////////////" << endl;
+	Logger log("T:Future");
+	log << "Test future" << endl;
+	boost::shared_ptr<FutureContent> fc(new FutureContent());
+	Future<int> f(fc);
+	log << "testy wstepne..." << endl;
+	REQUIRE(f.getException()==NULL);
+	REQUIRE(f.hasException()==false);
+	REQUIRE(f.isDone()==false);
+	CHECK(f.getProgress()==0.0);
+	CHECK(f.getState()==QUEUED);
 
+	log << "setState..." << endl;
+	fc->setState(INPROGRESS);
+	CHECK(f.getState()==INPROGRESS);
+
+	log << "setProgress..." << endl;
+	fc->setProgress(0.2);
+	CHECK(f.getProgress()==0.2);
+	REQUIRE(f.isDone()==false);
+	REQUIRE(f.hasException()==false);
+
+	log << "progress listener..." << endl;
+	struct listener
+	{
+		listener(boost::shared_ptr<double> p):
+			p_(p){}
+		void operator()(double p)
+		{
+			*p_=p;
+		}
+		boost::shared_ptr<double> p_;
+	};
+	boost::shared_ptr<double> progr(new double);
+	f.setFunction(listener(progr));
+	fc->setProgress(0.45);
+	CHECK(f.getProgress()==0.45);
+	CHECK(*progr==0.45);
+
+	log << "setValue..." << endl;
+	fc->setValue(42);
+	REQUIRE(f.isDone()==true);
+	REQUIRE(f.getValue()==42);
+	REQUIRE(f.hasException()==false);
+	CHECK(f.getState()==DONE);
+	log << "exception..." << endl;
+
+	fc->setException(boost::copy_exception(NonPositivePeriodException()));
+
+	REQUIRE(f.hasException()==true);
+	CHECK(f.getState()==EXCEPTION);
+	REQUIRE(f.getException()!=NULL);
+
+	try
+	{
+		f.getValue();
+	}
+	catch (NonPositivePeriodException& e)
+	{
+		REQUIRE(e.what()=="Refresh period has to be greater than 0!");
+	}
+	catch(std::exception const& e)
+	{
+		log << "Wyjatek:" << e.what() << endl;
+		BOOST_FAIL("Zlapano zly wyjatek!");
+	}
+	log << "sprzatam..." << endl;
 }
 
 void testSyncProxy()
 {
-	Logger log("MAIN",3);
-	log << "//////////////////Test proxy///////////////////" << endl;
+	Logger log("T:ProxySync");
+	log << "Test proxy" << endl;
+	log << "3x tworzone jest Proxy o 3 watkach. Sprawdz ilosc konstruktorow i destruktorow" << endl;
 	for(int i=0;i<3;++i)
 	{
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-		log << "//////////////////tworze proxy///////////////////" << endl;
+		boost::this_thread::sleep(boost::posix_time::milliseconds(500));
+		log << "tworze proxy..." << endl;
 		CalcProxy p(3);
-		log << "//////////////////kasuje proxy...///////////////////" << endl;
+		boost::this_thread::sleep(boost::posix_time::milliseconds(500));
+		log << "kasuje proxy..." << endl;
 	}
+	log << "sprzatam..." << endl;
 }
 
 void testSimpleInvoke()
 {
-	Logger log("MAIN");
-	log << "//////////////////Test invoke///////////////////" << endl;
+	Logger log("T:Invoke");
+	log << "Test prostego wywolania" << endl;
 
-	log << "//////////////////tworze proxy///////////////////" << endl;
-	CHECK(3==4); //wyrzuca blad na ekranie, test trwa dalej i konczy sie negatywnie
+	log << "tworze proxy..." << endl;
 	CalcProxy p(1);
-	log << "//////////////////wolam future dodawania///////////////////" << endl;
+	log << "wolam future dodawania..." << endl;
 	struct call
 	{
 		void operator ()(double x)
@@ -55,44 +121,60 @@ void testSimpleInvoke()
 			cout << "Progress listener: " << x << endl;
 		}
 	} callback;
+
 	Future<int> f = p.AddInt(3,5);
 	f.setFunction(callback);
 
-	log << "//////////////////czekam...///////////////////" << endl;
-	CHECK(f.isDone()==true);
+	log << "czekam......" << endl;
+	REQUIRE(f.isDone()==false);
+	REQUIRE(f.hasException()==false);
 	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-	CHECK(f.hasException()==true);
-	log << "//////////////////wynik///////////////////" << endl;
-	log << "//////////////////" << f.getValue() << "///////////////////" << endl;
-	CHECK(f.getValue()==7);
-	log << "//////////////////wolam future dzielenia///////////////////" << endl;
+	REQUIRE(f.hasException()==false);
+	REQUIRE(f.isDone()==true);
+	REQUIRE(f.getProgress()==1.0);
+	log << "wynik: " << f.getValue() << endl;
+	REQUIRE(f.getValue()==8);
+	int x = 4+f;
+	log << "dodanie 4+f (test rzutowania):" << x << endl;
+	REQUIRE(4+f==12);
+	log << "sprzatam..." << endl;
 }
 
 
 void testException()
 {
-	Logger log("MAIN");
-	log << "//////////////////Test exception///////////////////" << endl;
+	Logger log("T:Exception");
+	log << "Test exception" << endl;
 
-	log << "//////////////////tworze proxy///////////////////" << endl;
+	log << "tworze proxy" << endl;
 	CalcProxy p(1);
 
-	log << "//////////////////wolam future dzielenia///////////////////" << endl;
-	
-	Future<int> f2 = p.DivideInt(3,0);
-	log << "//////////////////czekam...///////////////////" << endl;
-	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+	log << "wolam future dzielenia przez 0" << endl;
 
-	log << "//////////////////wynik///////////////////" << endl;
+	Future<int> f2 = p.DivideInt(3,0);
+	log << "czekam..." << endl;
+	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+	REQUIRE(f2.hasException()==true);
+	REQUIRE(f2.getState()==EXCEPTION);
+	log << "wynik" << endl;
 	try
 	{
 		f2.getValue();
 	}
 	catch(exception& e)
 	{
-		log << "exception: " << e.what() << endl;
+		log << "Wyjatek: " << e.what() << endl;
+		try
+		{
+			throw std::overflow_error("Divide by zero exception");
+		}
+		catch(std::overflow_error x)
+		{
+			log << "Wyjatek: " << x.what() << endl;
+			REQUIRE(string(e.what())==string(x.what()));
+		}
 	}
-	log << "//////////////////kasuje proxy...///////////////////" << endl;
+	log << "sprzatam..." << endl;
 }
 
 void testCancel()
@@ -103,13 +185,13 @@ void testCancel()
 	log << "//////////////////tworze proxy///////////////////" << endl;
 	CalcProxy p(1);
 	log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl;
-	
+
 	Future<int> f = p.ReallyFrickinLongAddInt(3,5);
 	log << "//////////////////czekam...///////////////////" << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
 
 	f.cancelRequest();
-	log << "//////////////////wynik///////////////////" << endl;
+	log << "wynik///////////////////" << endl;
 	try
 	{
 		f.getValue();
@@ -128,7 +210,7 @@ void testSharedContent()
 	log << "//////////////////tworze proxy///////////////////" << endl;
 	CalcProxy p(1);
 	log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl;
-	
+
 	Future<int> f = p.ReallyFrickinLongAddInt(3,5);
 	log << "//////////////////czekam...///////////////////" << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(3000));
@@ -213,7 +295,7 @@ void testManyThreads()
 	log << "//////////////////tworze proxy///////////////////" << endl;
 	CalcProxy p(3);
 	log << "//////////////////wolam future dodawania///////////////////" << endl;
-	
+
 	Future<int> f1 = p.ReallyFrickinLongAddInt(30,50);
 	Future<int> f2 = p.ReallyFrickinLongAddInt(34,51);
 	Future<int> f3 = p.ReallyFrickinLongAddInt(3,58);
@@ -224,7 +306,7 @@ void testManyThreads()
 	Future<int> f8 = p.ReallyFrickinLongAddInt(2,34);
 
 	log << "//////////////////czekamy...///////////////////" << endl;
-	
+
 	log << "f1: " << f1.getValue() << endl;
 	log << "f2: " << f2.getValue() << endl;
 	log << "f3: " << f3.getValue() << endl;
@@ -233,7 +315,7 @@ void testManyThreads()
 	log << "f6: " << f6.getValue() << endl;
 	log << "f7: " << f7.getValue() << endl;
 	log << "f8: " << f8.getValue() << endl;
-	
+
 }
 
 void testSingletonServant()
@@ -244,14 +326,14 @@ void testSingletonServant()
 	log << "//////////////////tworze proxy///////////////////" << endl;
 	SyncCalcProxy p(3);
 	log << "//////////////////wolam future dodawania///////////////////" << endl;
-	
+
 	Future<int> f1 = p.SlowAddInt(30,50);
 	Future<int> f2 = p.SlowAddInt(34,51);
 	Future<int> f3 = p.SlowAddInt(3,58);
 	Future<int> f4 = p.SlowAddInt(1,234);
 
 	log << "//////////////////czekamy...///////////////////" << endl;
-	
+
 	log << "f1: " << f1.getValue() << endl;
 	log << "f2: " << f2.getValue() << endl;
 	log << "f3: " << f3.getValue() << endl;
@@ -266,7 +348,7 @@ void testPersistantFuture()
 	log << "//////////////////tworze proxy///////////////////" << endl;
 	CalcProxy* p = new CalcProxy(1);
 	log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl;
-	
+
 	Future<int> f = p->ReallyFrickinLongAddInt(3,5);
 
 	log << "//////////////////czekam na wartosc w trybie blokujacym///////////////////" << endl;
@@ -317,7 +399,7 @@ void testManyMethods()
 	log << "//////////////////tworze proxy///////////////////" << endl;
 	CalcProxy p(2);
 	log << "//////////////////wolam future dodawania///////////////////" << endl;
-	
+
 	Future<int> f1 = p.AddInt(30,50);
 	Future<int> f2 = p.SlowAddInt(34,51);
 	Future<int> f3 = p.ReallyFrickinLongAddInt(3,58);
@@ -325,7 +407,7 @@ void testManyMethods()
 	Future<double> f5 = p.DivideDouble(12312.23,5434.99);
 
 	log << "//////////////////czekamy...///////////////////" << endl;
-	
+
 	log << "f1: " << f1.getValue() << endl;
 	log << "f2: " << f2.getValue() << endl;
 	log << "f3: " << f3.getValue() << endl;
@@ -341,7 +423,7 @@ void testGuard()
 	log << "//////////////////tworze proxy///////////////////" << endl;
 	QueueProxy p(1);
 	log << "//////////////////wolam future dodawania///////////////////" << endl;
-	
+
 	Future<void> f1 = p.Put("msg1");
 	Future<void> f2 = p.Put("msg2");
 	Future<void> f3 = p.Put("msg3");
@@ -367,7 +449,7 @@ void testVoidInvokes()
 	log << "//////////////////tworze proxy///////////////////" << endl;
 	QueueProxy p(1);
 	log << "//////////////////wolam metody dodawania///////////////////" << endl;
-	
+
 	p.Put("msg1");
 	p.Put("msg2");
 	p.Put("msg3");
@@ -393,7 +475,7 @@ void testGuardMultipleThreads()
 	log << "//////////////////tworze proxy///////////////////" << endl;
 	SyncQueueProxy p(3);
 	log << "//////////////////wolam future dodawania///////////////////" << endl;
-	
+
 	Future<void> f1 = p.Put("msg1");
 	Future<void> f2 = p.Put("msg2");
 	Future<void> f3 = p.Put("msg3");
@@ -425,7 +507,7 @@ void testRefreshPeriod()
 	SyncQueueProxy p(3,2000L);
 
 	log << "//////////////////wolam future dodawania///////////////////" << endl;
-	
+
 	Future<void> f1 = p.Put("msg1");
 	Future<void> f2 = p.Put("msg2");
 	Future<void> f3 = p.Put("msg3");
@@ -452,46 +534,21 @@ void testRefreshPeriod()
 int test_main(int argc, char* argv[])
 {	
 	cout<<"TESTOWANIE ACTIVE OBJECT"<<endl;
-	int prog= 1;
-	while(prog) 
-	{
-		cout<<endl;
-		cout<<"Wybierz test wpisujac odpowiednia liczbe: "<<endl<<endl;
-		cout<<"\ttestSyncProxy\t\t-\t1"<<endl;
-		cout<<"\ttestSimpleInvoke\t-\t2"<<endl;
-		cout<<"\ttestException\t\t-\t3"<<endl;
-		cout<<"\ttestCancel\t\t-\t4"<<endl;
-		cout<<"\ttestSharedContent\t-\t5"<<endl;
-		cout<<"\ttestSwapCallback\t-\t6"<<endl;
-		cout<<"\ttestManyThreads\t\t-\t7"<<endl;
-		cout<<"\ttestSingletonServant\t-\t8"<<endl;
-		cout<<"\ttestPersistantFuture\t-\t9"<<endl;
-		cout<<"\ttestManyMethods\t\t-\t10"<<endl;
-		cout<<"\ttestGuard\t\t-\t11"<<endl;
-		cout<<"\ttestVoidInvokes\t\t-\t12"<<endl;
-		cout<<"\ttestGuardMultipleThreads-\t13"<<endl;
-		cout<<"\ttestRefreshPeriod\t-\t14"<<endl<<endl;
-		cout<<"\tWyjscie\t\t\t-\t0"<<endl;
-
-		cin>>prog;
-		cout<<endl;
-
-		if(prog<0) prog=0;
-		else if(prog==1) testSyncProxy();
-		else if(prog==2) testSimpleInvoke();
-		else if(prog==3) testException();
-		else if(prog==4) testCancel();
-		else if(prog==5) testSharedContent();
-		else if(prog==6) testSwapCallback();
-		else if(prog==7) testManyThreads();
-		else if(prog==8) testSingletonServant();
-		else if(prog==9) testPersistantFuture();
-		else if(prog==10) testManyMethods();
-		else if(prog==11) testGuard();
-		else if(prog==12) testVoidInvokes();
-		else if(prog==13) testGuardMultipleThreads();
-		else if(prog==14) testRefreshPeriod();
-	}
+	testFuture();
+	testSyncProxy();
+	testSimpleInvoke();
+	testException();
+	/*else if(prog==4) testCancel();
+	else if(prog==5) testSharedContent();
+	else if(prog==6) testSwapCallback();
+	else if(prog==7) testManyThreads();
+	else if(prog==8) testSingletonServant();
+	else if(prog==9) testPersistantFuture();
+	else if(prog==10) testManyMethods();
+	else if(prog==11) testGuard();
+	else if(prog==12) testVoidInvokes();
+	else if(prog==13) testGuardMultipleThreads();
+	else if(prog==14) testRefreshPeriod();*/
 
 	return EXIT_SUCCESS;
 }

@@ -22,10 +22,11 @@
 * thrown when resfreshPeriod parameter is non-positive.
 * refreshPeriod indicates how often result of guard method is checked. 
 */
-class NonPositivePeriodException: public exception
+class NonPositivePeriodException: public exception, public boost::exception
 {
 public:
     NonPositivePeriodException(){}
+
     virtual const char* what()
     {
 		return "Refresh period has to be greater than 0!";
