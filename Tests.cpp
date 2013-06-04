@@ -130,11 +130,20 @@ void testSimpleInvoke()
 	REQUIRE(f.isDone()==false);
 	REQUIRE(f.hasException()==false);
 	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+	try
+	{
+		REQUIRE(f.getValue()==8);
+	}
+	catch(...)
+	{
+		BOOST_FAIL("Nastapil wyjatek podczas wywolania");
+	}
+
 	REQUIRE(f.hasException()==false);
 	REQUIRE(f.isDone()==true);
 	REQUIRE(f.getProgress()==1.0);
 	log << "wynik: " << f.getValue() << endl;
-	REQUIRE(f.getValue()==8);
+	
 	int x = 4+f;
 	log << "dodanie 4+f (test rzutowania):" << x << endl;
 	REQUIRE(4+f==12);
@@ -214,7 +223,7 @@ void testCancel()
 	{
 		BOOST_FAIL("Zlapano zly wyjatek");
 	}
-
+	log << "sprzatam..." << endl;
 }
 
 void testSharedContent()
@@ -258,9 +267,9 @@ void testSharedContent()
 		BOOST_FAIL("Drugie wywolanie zakonczylo sie wyjatkiem!");
 	}
 	log << "sprawdzam future po wykonaniu..." << endl;
-	REQUIRE(f.getValue()==8);
-	REQUIRE(f.getState()==DONE);
-	REQUIRE(f.getProgress()==1.0);
+	REQUIRE(f2.getValue()==8);
+	REQUIRE(f2.getState()==DONE);
+	REQUIRE(f2.getProgress()==1.0);
 	log << "sprzatam..." << endl;
 }
 

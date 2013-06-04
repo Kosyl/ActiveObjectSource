@@ -27,6 +27,7 @@ public:
 	int AddInt(int a, int b)
 	{
 		setProgress(0.2);
+		boost::this_thread::sleep(boost::posix_time::milliseconds(500));
 		setProgress(0.8);
 		return a+b;
 	}
