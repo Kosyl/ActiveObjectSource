@@ -143,6 +143,8 @@ namespace ActiveObject
 	*/
     FutureState getState()
     {
+		if(!pFutureContent_)
+			return CANCELLED;
 		return pFutureContent_->getState();
     }
     /**
@@ -165,7 +167,7 @@ namespace ActiveObject
     bool hasException() const
     {
         if(!pFutureContent_)
-        throw RequestCancelledException();
+			return true;
         return pFutureContent_->hasException();
     }
 

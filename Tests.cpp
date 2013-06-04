@@ -24,6 +24,7 @@ void testFuture()
 {
 	Logger log("T:Future");
 	log << "Test future" << endl;
+	log << "Tworzymy prosty content i Future wskazujacy na niego, przeprowadzamy rozne operacje" << endl;
 	boost::shared_ptr<FutureContent> fc(new FutureContent());
 	Future<int> f(fc);
 	log << "testy wstepne..." << endl;
@@ -144,19 +145,19 @@ void testSimpleInvoke()
 void testException()
 {
 	Logger log("T:Exception");
-	log << "Test exception" << endl;
+	log << "Test exception..." << endl;
 
-	log << "tworze proxy" << endl;
+	log << "tworze proxy..." << endl;
 	CalcProxy p(1);
 
-	log << "wolam future dzielenia przez 0" << endl;
+	log << "wolam future dzielenia przez 0..." << endl;
 
 	Future<int> f2 = p.DivideInt(3,0);
 	log << "czekam..." << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 	REQUIRE(f2.hasException()==true);
 	REQUIRE(f2.getState()==EXCEPTION);
-	log << "wynik" << endl;
+	log << "wynik..." << endl;
 	try
 	{
 		f2.getValue();
@@ -170,7 +171,6 @@ void testException()
 		}
 		catch(std::overflow_error x)
 		{
-			log << "Wyjatek: " << x.what() << endl;
 			REQUIRE(string(e.what())==string(x.what()));
 		}
 	}
@@ -179,64 +179,89 @@ void testException()
 
 void testCancel()
 {
-	Logger log("MAIN");
-	log << "//////////////////Test cancel///////////////////" << endl;
+	Logger log("T:Cancel");
+	log << "Test cancel" << endl;
 
-	log << "//////////////////tworze proxy///////////////////" << endl;
+	log << "tworze proxy..." << endl;
 	CalcProxy p(1);
-	log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl;
+	log << "wolam future dlugiego dodawania..." << endl;
 
-	Future<int> f = p.ReallyFrickinLongAddInt(3,5);
-	log << "//////////////////czekam...///////////////////" << endl;
+	Future<int> f = p.ReallyLongAddInt(3,5);
+	log << "czekam..." << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
-
+	log << "kasuje..." << endl;
 	f.cancelRequest();
-	log << "wynik///////////////////" << endl;
+	REQUIRE(f.hasException()==true);
+	REQUIRE(f.getState()==CANCELLED);
+	log << "wynik..." << endl;
 	try
 	{
 		f.getValue();
 	}
-	catch(exception& e)
+	catch(RequestCancelledException& e)
 	{
-		log << "exception: " << e.what() << endl;
+		log << "Wyjatek: " << e.what() << endl;
+		try
+		{
+			throw RequestCancelledException();
+		}
+		catch(RequestCancelledException& x)
+		{
+			REQUIRE(string(e.what())==string(x.what()));
+		}
 	}
+	catch(...)
+	{
+		BOOST_FAIL("Zlapano zly wyjatek");
+	}
+
 }
 
 void testSharedContent()
 {
-	Logger log("MAIN");
-	log << "//////////////////Test wspoldzielonego contentu///////////////////" << endl;
+	Logger log("T:Sh.Cont.");
+	log << "Test wspoldzielonego contentu" << endl;
 
-	log << "//////////////////tworze proxy///////////////////" << endl;
+	log << "tworze proxy..." << endl;
 	CalcProxy p(1);
-	log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl;
+	log << "wolam future dlugiego dodawania..." << endl;
 
-	Future<int> f = p.ReallyFrickinLongAddInt(3,5);
-	log << "//////////////////czekam...///////////////////" << endl;
+	Future<int> f = p.ReallyLongAddInt(3,5);
+	log << "czekam chwile..." << endl;
 	boost::this_thread::sleep(boost::posix_time::milliseconds(3000));
-
+	log << "tworzymy nowe future w oparciu o obecne..." << endl;
 	Future<int>f2(f);
+	log << "sprawdzamy, czy sa analogiczne..." << endl;
+	log << "wyniki moga sie roznic, jesli writer wcisnie sie miedzy wywolania getow na future, dlatego tylko checki..." << endl;
+	CHECK(f.getException()==f2.getException());
+	CHECK(f.getProgress()==f2.getProgress());
+	CHECK(f.getState()==f2.getState());
+	CHECK(f.isDone()==f2.isDone());
+	CHECK(f2.isDone()==false);
+	CHECK(f2.isDone()==false);
+	CHECK(f.hasException()==f2.hasException());
+	CHECK(f2.hasException()==false);
+	log << "kasuje jeden future..." << endl;
 	f.cancelRequest();
-	log << "//////////////////pierwszy callback///////////////////" << endl;
-	try
-	{
-		f.getValue();
-	}
-	catch(exception& e)
-	{
-		log << "exception: " << e.what() << endl;
-	}
-
-	boost::this_thread::sleep(boost::posix_time::milliseconds(3000));
-	f2.cancelRequest();
+	REQUIRE(f.hasException()==true);
+	REQUIRE(f.getState()==CANCELLED);
+	REQUIRE(f2.hasException()==false);
+	REQUIRE(f2.getState()==INPROGRESS);
+	CHECK(f2.isDone()==false);
+	log << "czekam na wykonanie..." << endl;
 	try
 	{
 		f2.getValue();
 	}
-	catch(exception& e)
+	catch(exception&)
 	{
-		log << "exception: " << e.what() << endl;
+		BOOST_FAIL("Drugie wywolanie zakonczylo sie wyjatkiem!");
 	}
+	log << "sprawdzam future po wykonaniu..." << endl;
+	REQUIRE(f.getValue()==8);
+	REQUIRE(f.getState()==DONE);
+	REQUIRE(f.getProgress()==1.0);
+	log << "sprzatam..." << endl;
 }
 
 void testSwapCallback()
@@ -254,7 +279,7 @@ void testSwapCallback()
 			cout << "Progress listener: " << x << endl;
 		}
 	} callback;
-	Future<int> f = p.ReallyFrickinLongAddInt(30,50);
+	Future<int> f = p.ReallyLongAddInt(30,50);
 	f.setFunction(callback);
 
 	log << "//////////////////czekam...///////////////////" << endl;
@@ -296,14 +321,14 @@ void testManyThreads()
 	CalcProxy p(3);
 	log << "//////////////////wolam future dodawania///////////////////" << endl;
 
-	Future<int> f1 = p.ReallyFrickinLongAddInt(30,50);
-	Future<int> f2 = p.ReallyFrickinLongAddInt(34,51);
-	Future<int> f3 = p.ReallyFrickinLongAddInt(3,58);
-	Future<int> f4 = p.ReallyFrickinLongAddInt(1,234);
-	Future<int> f5 = p.ReallyFrickinLongAddInt(23,523);
-	Future<int> f6 = p.ReallyFrickinLongAddInt(43,34);
-	Future<int> f7 = p.ReallyFrickinLongAddInt(100,34);
-	Future<int> f8 = p.ReallyFrickinLongAddInt(2,34);
+	Future<int> f1 = p.ReallyLongAddInt(30,50);
+	Future<int> f2 = p.ReallyLongAddInt(34,51);
+	Future<int> f3 = p.ReallyLongAddInt(3,58);
+	Future<int> f4 = p.ReallyLongAddInt(1,234);
+	Future<int> f5 = p.ReallyLongAddInt(23,523);
+	Future<int> f6 = p.ReallyLongAddInt(43,34);
+	Future<int> f7 = p.ReallyLongAddInt(100,34);
+	Future<int> f8 = p.ReallyLongAddInt(2,34);
 
 	log << "//////////////////czekamy...///////////////////" << endl;
 
@@ -349,7 +374,7 @@ void testPersistantFuture()
 	CalcProxy* p = new CalcProxy(1);
 	log << "//////////////////wolam future dlugiego dodawania///////////////////" << endl;
 
-	Future<int> f = p->ReallyFrickinLongAddInt(3,5);
+	Future<int> f = p->ReallyLongAddInt(3,5);
 
 	log << "//////////////////czekam na wartosc w trybie blokujacym///////////////////" << endl;
 	try
@@ -402,7 +427,7 @@ void testManyMethods()
 
 	Future<int> f1 = p.AddInt(30,50);
 	Future<int> f2 = p.SlowAddInt(34,51);
-	Future<int> f3 = p.ReallyFrickinLongAddInt(3,58);
+	Future<int> f3 = p.ReallyLongAddInt(3,58);
 	Future<int> f4 = p.DivideInt(234,2);
 	Future<double> f5 = p.DivideDouble(12312.23,5434.99);
 
@@ -538,9 +563,9 @@ int test_main(int argc, char* argv[])
 	testSyncProxy();
 	testSimpleInvoke();
 	testException();
-	/*else if(prog==4) testCancel();
-	else if(prog==5) testSharedContent();
-	else if(prog==6) testSwapCallback();
+	testCancel();
+	testSharedContent();
+	/*else if(prog==6) testSwapCallback();
 	else if(prog==7) testManyThreads();
 	else if(prog==8) testSingletonServant();
 	else if(prog==9) testPersistantFuture();

@@ -116,7 +116,7 @@ private:
 			//DLOG(log_ << "invoking request" << endl);
 			//mowimy servantowi schedulera, zeby wskazywal na ten sam content co zadanie wyjete z kolejki
 			servant_->setFutureContent(fun->getFutureContent());
-
+			fun->getFutureContent()->setState(INPROGRESS);
 			//tu wywolanie wlasciej funkcji; przechwytywanie wyjatkow jest w MethodRequest
 			fun->execute(servant_);
 			

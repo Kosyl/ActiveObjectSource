@@ -31,7 +31,7 @@ public:
 		return a+b;
 	}
 
-	int ReallyFrickinLongAddInt(int a, int b)
+	int ReallyLongAddInt(int a, int b)
 	{
 		for(double i=0;i<1.0;i+=0.1)
 		{
@@ -94,7 +94,7 @@ public:
 		return a+b;
 	}
 
-	int ReallyFrickinLongAddInt(int a, int b)
+	int ReallyLongAddInt(int a, int b)
 	{
 		boost::mutex::scoped_lock lock(mutex_);
 		for(double i=0;i<1.0;i+=0.1)
@@ -157,9 +157,9 @@ public:
 		return enqueue<int>(boost::bind(&CalcServant::DivideInt,_1,a,b));
 	}
 
-	Future<int> ReallyFrickinLongAddInt(int a, int b)
+	Future<int> ReallyLongAddInt(int a, int b)
 	{
-		return enqueue<int>(boost::bind(&CalcServant::ReallyFrickinLongAddInt,_1,a,b));
+		return enqueue<int>(boost::bind(&CalcServant::ReallyLongAddInt,_1,a,b));
 	}
 
 	Future<int> SlowAddInt(int a, int b)
@@ -196,7 +196,7 @@ public:
 
 	Future<int> ReallyFrickinLongAddInt(int a, int b)
 	{
-		return enqueue<int>(boost::bind(&SyncCalcServant::ReallyFrickinLongAddInt,_1,a,b));
+		return enqueue<int>(boost::bind(&SyncCalcServant::ReallyLongAddInt,_1,a,b));
 	}
 
 	Future<int> SlowAddInt(int a, int b)
