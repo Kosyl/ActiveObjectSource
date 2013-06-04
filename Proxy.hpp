@@ -37,38 +37,43 @@ namespace ActiveObject
     
     //daje metode getServant ktora dziala jak fabryka
     /**
+	 * ServantFactoryCreator allows to create every time different Servant.
      * @brief Servant Factory.
      * @tparam T Type of servant to create.
+	 * @see ServantPrototypeCreator
+	 * @see ServantSingletonCreator
      */
     template<typename T>
     class ServantFactoryCreator
     {
 	
     public:
-	/**
-	 * @brief Constructor
-	 */
-	ServantFactoryCreator()
-	{}
-	/**
-	 * @brief Returns pointer to the created Servant.
-	 * @return pointer to the created Servant.
-	 */
-	boost::shared_ptr<T> getServant()
-	{
-	    return boost::shared_ptr<T>(new T);
-	}
+		/**
+		* @brief Constructor
+		*/
+		ServantFactoryCreator()
+		{}
+		/**
+		* @brief Returns pointer to the new created Servant.
+		* @return pointer to the created Servant.
+		*/
+		boost::shared_ptr<T> getServant()
+		{
+			return boost::shared_ptr<T>(new T);
+		}
 	
-	/**
-	 * @brief Destructor
-	 */
-	virtual ~ServantFactoryCreator(){}
+		/**
+		* @brief Destructor
+		*/
+		virtual ~ServantFactoryCreator(){}
     };
     
     //jw prototyp
     /**
      * @brief Servant Prototype
      * @tparam T Type of servant to create.
+	 * @see ServantFactoryCreator
+	 * @see ServantSingletonCreator
      */
     template<typename T>
     class ServantPrototypeCreator
@@ -107,6 +112,13 @@ namespace ActiveObject
     };
     
     //jw singleton
+	/**
+	 * In this solution only one Servant executes methods. 
+     * @brief Servant Singleton
+     * @tparam T Type of servant to create.
+	 * @see ServantFactoryCreator
+	 * @see ServantPrototypeCreator
+     */
     template<typename T>
     class ServantSingletonCreator
     {
