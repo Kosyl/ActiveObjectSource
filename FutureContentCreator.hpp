@@ -121,7 +121,7 @@ namespace ActiveObject
 		/**
 		* Logger 
 		*/
-		DLOG(Logger log_);
+		DLOG(Logger log_;)
 
 	private:
 		/**

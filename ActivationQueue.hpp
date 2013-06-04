@@ -69,7 +69,7 @@ private:
 	/**
 	* thread-safe logger
 	*/
-	DLOG(mutable Logger log_);
+	DLOG(mutable Logger log_;)
 public:
 
 	/**

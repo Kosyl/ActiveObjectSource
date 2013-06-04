@@ -26,6 +26,6 @@ else:
    print platform.system() + " not supported"
 
 if int(debug):
-	e.Program(target = 'ActObjDeb', source = 'Main.cpp')
+	e.Program(target = 'ActObjDeb', source = 'Tests.cpp')
 else: 
-	e.Program(target = 'ActObj', source = 'Main.cpp')
+	e.Program(target = 'ActObj', source = 'Tests.cpp')

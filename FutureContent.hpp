@@ -78,7 +78,7 @@ namespace ActiveObject
 		/**
 		* Logger
 		*/
-		DLOG(mutable Logger log_);
+		DLOG(mutable Logger log_;)
 
 	public:
 

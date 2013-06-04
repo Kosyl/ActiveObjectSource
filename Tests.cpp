@@ -121,7 +121,7 @@ void testFuture()
 	}
 	catch (NonPositivePeriodException& e)
 	{
-		REQUIRE(e.what()=="Refresh period has to be greater than 0!");
+		REQUIRE(string(e.what())=="Refresh period has to be greater than 0!");
 	}
 	catch(std::exception const& e)
 	{

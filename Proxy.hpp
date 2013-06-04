@@ -193,7 +193,7 @@ namespace ActiveObject
 		/**
 		* Thread-safe logger
 		*/
-		DLOG(mutable Logger log_);
+		DLOG(mutable Logger log_;)
 		/**
 		* Policy of Servant Creation.
 		*/

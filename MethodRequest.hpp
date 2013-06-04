@@ -40,7 +40,7 @@ namespace ActiveObject
 		/**
 		* Thread-safe logger
 		*/
-		DLOG(Logger log_);
+		DLOG(Logger log_;)
 		unique_ptr<boost::function<bool(Servant*)> > guard_;
 	public:
 		/**

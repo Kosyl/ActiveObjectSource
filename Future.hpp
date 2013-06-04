@@ -50,7 +50,7 @@ namespace ActiveObject
 		/**
 		* Thread-safe logger.
 		*/
-		DLOG(mutable Logger log_);
+		DLOG(mutable Logger log_;)
 
 		/**
 		* An empty callback, used to identify Futures observing the FutureContent
