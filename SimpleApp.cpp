@@ -13,27 +13,43 @@ using namespace ActiveObject;
 class SimpleServant: public FutureContentCreator
 {
 private:
-	bool guard_;
-	int counter;
+	boost::mutex mutex_;
 public:
 
-	SimpleServant():
-	  guard_(true),
-	  counter(0)
+	SimpleServant()
 	{}
 
-	SimpleServant(const SimpleServant& rhs)
-	{}
-
-	void print(string word)
+	void print(string s)
 	{
-		srand(time(NULL));
+		boost::mutex::scoped_lock l(mutex_);
+		cout<<s<<endl;
+	}
+
+	void Predict(string word)
+	{
+		srand((unsigned int)time(NULL));
 		boost::this_thread::sleep(boost::posix_time::milliseconds(3000));
-		cerr<<"Wrozbita Maciej jest w 50% procesu zastanawiania sie 'Hmmm, "<<word<<", ile lat jeszcze pozyjesz?"<<endl;
+		{
+			boost::mutex::scoped_lock l(mutex_);
+			cout<<"\""<<word<<",taaaaaak..."<<endl;
+		}
+		boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
+		{
+			boost::mutex::scoped_lock l(mutex_);
+			cout<<"'Hmmm, "<<word<<", "<<word<<", "<<word<<", ile lat jeszcze pozyjesz?"<<endl;
+		}
+		boost::this_thread::sleep(boost::posix_time::milliseconds(2500));
+		{
+			boost::mutex::scoped_lock l(mutex_);
+			cout<<"'Taaaak, to bardzo ciekawe... "<<word<<", zaraz poznasz swoja przyszlosc!"<<endl;
+		}
 		boost::this_thread::sleep(boost::posix_time::milliseconds(3000));
 		int v = rand() % 20 +5;
-		cerr<<"Maciej wrozbita mowi, ze "<<word<< " umrze za " <<v<<" lat"<<endl;
-		
+		{
+			boost::mutex::scoped_lock l(mutex_);
+			cout<<"Maciej wrozbita mowi, ze "<<word<< " umrze za " <<v<<" lat."<<endl;
+		}
+
 	}
 
 };
@@ -52,27 +68,35 @@ public:
 	{
 		return enqueue<void> (boost::bind(&SimpleServant::print,_1,word));
 	}
-
+	Future<void> predict(string word) 
+	{
+		return enqueue<void> (boost::bind(&SimpleServant::Predict,_1,word));
+	}
 };
 
 
 int main(int argc, char* argv[])
 {	
-	
 	int tmp=1;
-	cout<<"Wpisz imie"<<endl;
+	cout<<"Wpisz imie osoby, ktorej przyszlosc chcesz poznac. Wrozbita Maciej powie ci najwieksze sekrety wiecznosci!"<<endl;
+	cout<<"Wrozbita Maciej moze przewidywac przyszlosc dla 3 osob jednoczesnie!"<<endl;
+	cout<<"Wpisz 'Maciej', zeby sploszyc wrozbite!"<<endl;
 	string word;
-	SimpleProxy* proxy= new SimpleProxy(2);
-	while (tmp) 
+	SimpleProxy* proxy= new SimpleProxy(3);
+	do
 	{
+		cin.clear();
 		cin>>word;
-		proxy->print(word);
-		cout<<"Wpisz nastepne imie"<<endl;
-		cout<<"Uwazaj, jesli wpiszesz 'Maciej', to wrozbita sie obrazi i wyjdzie."<<endl;
-		cin>>word;
-		if(word=="Maciej") tmp=0;
-		else proxy->print(word);
+		cin.clear();
+		if(word=="Maciej")break;
+		proxy->predict(word);
+		cout<<"Chcesz pozac przyszlosc osoby o imieniu '"<<word<<"'. Wrozbita zastanawia sie."<<endl;
+		cout<<"Uwazaj, jesli wpiszesz 'Maciej', to wrozbita sie obrazi i wyjdzie!.\nWpisz nastepne imie:"<<endl;
 	}
+	while (1);
+	cout << "Wrozbita Maciej uprzejmie dokonczy przepowiadanie..." << endl;
+	delete proxy;
+	cout << "Koniec przepowiedni na dzis!" << endl;
 	return EXIT_SUCCESS;
 }
 
