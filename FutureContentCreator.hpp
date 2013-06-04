@@ -29,18 +29,19 @@ namespace ActiveObject
 		* @brief Constructs FutureContentCreator.
 		*/
 		FutureContentCreator()
-			:log_("Creator",5)
 		{
+			DLOG(log_.setName("Creator"));
+			DLOG(log_.setColor(5));
 			DLOG(log_ << "constructor" << endl);
 		}
 		/**
 		* Construct copy of other FutureContentCreator.
 		* @brief Copy constructor.
 		*/ 
-		FutureContentCreator(const FutureContentCreator& rhs):
-			log_("Creator",5),
-			pFutureContent_(rhs.pFutureContent_)
+		FutureContentCreator(const FutureContentCreator& rhs)
 		{
+			DLOG(log_.setName("Creator"));
+			DLOG(log_.setColor(5));
 			DLOG(log_ << "c constructor" << endl);
 		}
 		/**
@@ -59,12 +60,6 @@ namespace ActiveObject
 			DLOG(log_ << "setFutureContent ()" << endl);
 			pFutureContent_=futureContentPtr;
 		}
-
-		/*void resetContentPointer()
-		*	{
-		*		DLOG(log_ << "setFutureContent ()" << endl);
-		*		pFutureContent_.reset();
-		}*/
 
 	protected:
 		/**
@@ -123,7 +118,10 @@ namespace ActiveObject
 			pFutureContent_.lock()->setState(CANCELLED);
 		}
 
-		Logger log_;
+		/**
+		* Logger 
+		*/
+		DLOG(Logger log_);
 
 	private:
 		/**

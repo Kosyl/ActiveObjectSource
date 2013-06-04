@@ -1,7 +1,6 @@
 #ifndef _SIMPLELOG_
 #define _SIMPLELOG_
 
-
 #ifdef _DEBUG 
 #define DLOG(x) x
 #else 
@@ -48,6 +47,14 @@ namespace ActiveObject
 
 	public:
 
+		Logger():
+			modul_(""),
+			printDetails_(true),
+			color_(0)
+		{
+			*currentWriterId_=boost::this_thread::get_id();
+		}
+
 		Logger(string s, short color=15):
 			modul_(s),
 			printDetails_(true),
@@ -63,6 +70,17 @@ namespace ActiveObject
 		{
 			if(!stopLogging_)stopLogging_= unique_ptr<boost::mutex::scoped_lock>(new boost::mutex::scoped_lock(*mutex_));
 		}
+
+		void setColor(int i)
+		{
+			color_=i;
+		}
+
+		void setName(string s)
+		{
+			modul_=s;
+		}
+
 
 		void unlock()
 		{
@@ -107,7 +125,7 @@ namespace ActiveObject
 			const long seconds      = td.seconds();
 			const long milliseconds = (const long)(td.total_milliseconds() -	((hours * 3600 + minutes * 60 + seconds) * 1000));
 
-			ss << hours+2 << ":" << setw(2) << minutes << ":" << setw(2) << seconds << "." << setw(3) << milliseconds << " | " << setw(5) << boost::this_thread::get_id() << " | "<< setw(10) << modul_ << ": ";
+			ss << hours+2 << ":" << setw(2) << minutes << ":" << setw(2) << seconds << "." << setw(3) << milliseconds << " | " << setw(5) << boost::this_thread::get_id() << " | "<< setw(13) << modul_ << ": ";
 		}
 
 		template<typename T>

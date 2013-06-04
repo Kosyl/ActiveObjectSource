@@ -69,7 +69,7 @@ private:
 	/**
 	* thread-safe logger
 	*/
-	mutable Logger log_;
+	DLOG(mutable Logger log_);
 public:
 
 	/**
@@ -77,9 +77,10 @@ public:
 	*/
 	ActivationQueue(void): 
 		shouldIEnd_(false),
-		guardedCount_(0),
-		log_("AQ",4)
+		guardedCount_(0)
 	{
+		DLOG(log_.setName("AQ"));
+		DLOG(log_.setColor(4));
 		DLOG(log_<<"constructor"<<endl);
 	}
 
@@ -89,9 +90,10 @@ public:
 	*/
 	ActivationQueue(unsigned long refreshPeriod): 
 		shouldIEnd_(false),
-		guardedCount_(0),	
-		log_("AQ",4)
+		guardedCount_(0)
 	{
+		DLOG(log_.setName("AQ"));
+		DLOG(log_.setColor(4));
 		DLOG(log_<<"constructor"<<endl);
 		refreshGuardsThread_=boost::thread(boost::bind(&ActivationQueue::refreshFunction,this,refreshPeriod));
 	}

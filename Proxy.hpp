@@ -193,7 +193,7 @@ namespace ActiveObject
 		/**
 		* Thread-safe logger
 		*/
-		mutable Logger log_;
+		DLOG(mutable Logger log_);
 		/**
 		* Policy of Servant Creation.
 		*/
@@ -204,9 +204,10 @@ namespace ActiveObject
 		* @param numThreads- number of threads and Schedulers as well.
 		*/
 		Proxy(unsigned int numThreads=1):
-		AQ_(new ActivationQueue<Servant>()),
-		log_("Proxy",2)
+		AQ_(new ActivationQueue<Servant>())
 		{
+			DLOG(log_.setName("Proxy"));
+			DLOG(log_.setColor(2));
 			DLOG(log_<<"constructor"<<endl);
 			for(unsigned int i=0;i<numThreads;++i)
 			{
@@ -223,9 +224,10 @@ namespace ActiveObject
 		* @throw NonPositivePeriodException when refreshPeriod is not positive.
 		*/
 		//KARDAMON: czy to mo¿liwe, skoro mamy unsigned longa?
-		Proxy(unsigned int numThreads, unsigned long refreshPeriod):
-		log_("Proxy",2)
+		Proxy(unsigned int numThreads, unsigned long refreshPeriod)
 		{
+			DLOG(log_.setName("Proxy"));
+			DLOG(log_.setColor(2));
 			DLOG(log_<<"constructor"<<endl);
 			if(refreshPeriod>0)
 			{
@@ -299,7 +301,6 @@ namespace ActiveObject
 			boost::shared_ptr<FutureContent> pContent(new FutureContent());
 			Future<T> fut(pContent);
 			MethodRequest<T,Servant>* request = new MethodRequest<T,Servant>(command,pContent);
-			//Functor<Servant>* functor = request; //powinno dzialac tak samo, skoro podajemy wskazniki
 			AQ_->push(request);
 			return fut;
 		}
@@ -317,7 +318,6 @@ namespace ActiveObject
 			boost::shared_ptr<FutureContent> pContent(new FutureContent());
 			Future<T> fut(pContent);
 			MethodRequest<T,Servant>* request = new MethodRequest<T,Servant>(command,pContent, guard);
-			//Functor<Servant>* functor = request;
 			AQ_->push(request);
 			return fut;
 		}

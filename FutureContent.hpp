@@ -78,7 +78,7 @@ namespace ActiveObject
 		/**
 		* Logger
 		*/
-		mutable Logger log_;
+		DLOG(mutable Logger log_);
 
 	public:
 
@@ -89,9 +89,10 @@ namespace ActiveObject
 		*/
 		FutureContent():
 			progress_(0.0),
-			state_(QUEUED),
-			log_("Content",6)
+			state_(QUEUED)
 		{
+			DLOG(log_.setName("Content"));
+			DLOG(log_.setColor(6));
 			DLOG(log_ << "constructor" << endl);
 		}
 		/**
