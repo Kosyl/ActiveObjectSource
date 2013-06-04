@@ -24,7 +24,7 @@ z bibliotek boost 1_53_0:
   boost/thread/condition_variable.hpp, boost/smart_ptr/shared_ptr.hpp, boost/noncopyable.hpp, 
   boost/any.hpp,boost/signal.hpp, boost/exception_ptr.hpp, boost/ref.hpp, boost/weak_ptr.hpp,
   boost/shared_ptr.hpp, boost/bind.hpp, boost/date_time/gregorian/gregorian.hpp,
-  boost/date_time/posix_time/posix_time.hpp, boost/thread.hpp
+  boost/date_time/posix_time/posix_time.hpp, boost/thread.hpp, boost/test/minimal.hpp
   
 - lib: boost_thread, boost_signals, boost_unit_test_framework
 
