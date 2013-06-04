@@ -8,9 +8,9 @@
 #ifndef _COMMAND_
 #define _COMMAND_
 
-#include <boost/function.hpp>
 #include "Future.hpp"
 #include "SimpleLog.hpp"
+#include <boost/function.hpp>
 
 namespace ActiveObject
 {
@@ -41,8 +41,14 @@ namespace ActiveObject
 		* Thread-safe logger
 		*/
 		DLOG(Logger log_;)
+
+		/**
+		* Guard function to be called to check the given synchronization constraints
+		*/
 		unique_ptr<boost::function<bool(Servant*)> > guard_;
+
 	public:
+
 		/**
 		* @brief Constructs Functor with a given FutureContent
 		* @param content Pointer to FutureContent
@@ -53,6 +59,7 @@ namespace ActiveObject
 			DLOG(log_.setName("Functor"));
 			DLOG(log_.setColor(7));
 		}
+
 		/**
 		* @brief Constructs Functor with a given FutureContent and guard function.
 		* @param content Pointer to FutureContent
@@ -66,12 +73,14 @@ namespace ActiveObject
 			DLOG(log_.setColor(7));
 			*guard_=guard;
 		}
+
 		/**
 		* Destructor
 		*/
 		virtual ~Functor()
 		{
 		}
+
 		/**
 		* @brief Makes given servant execute method.
 		* @param servant Pointer to servant
@@ -87,8 +96,10 @@ namespace ActiveObject
 			DLOG(log_ << "getFutureContent()" << endl);
 			return content_;
 		}
+
 		/**
-		* KARDAMON...
+		* @brief Checks some custom synchronization constraints
+		* @return false if all of the custom constraints requiret to execute the method are met; true otherwise (the method is "guarded").
 		*/
 		bool guard(boost::shared_ptr<Servant> s)
 		{
@@ -98,32 +109,33 @@ namespace ActiveObject
 			return (*guard_)(s.get());
 		}
 
-		//moze sie przyda, moze nie
 		/**
-		* KARDAMON...
+		* @brief Checks if the command contained within is not null.
+		* @return true if the command is not null; false otherwise.
 		*/
 		virtual bool isReady()=0;
-	};
+	};//Functor
 
-	//2 parametry! reszta siedzi w b::function i b::bind
 	/**
 	* It passes context information about a specific method invocation on a Proxy, such as method parameters and code,
 	* from the Proxy to a Scheduler running in a separate thread. 
 	* @brief Implements Functor interface.
 	* @tparam ReturnType Type of return value of the invoked method.
-	* @tparam Servant Type of servant that executes method.
+	* @tparam Servant Type(class) of servant that executes method.
 	*/
 	template<typename ReturnType, class Servant>
 	class MethodRequest:public Functor<Servant>
 	{
 
 	private:
+
 		/**
-		* Pointer to command
+		* command object to be executed on a given Servant
 		*/
 		boost::function<ReturnType(Servant*)> command_;
 
 	public:
+
 		/**
 		* @brief Constructs MethodRequest with given command and FutureContent.
 		* @param f Invoked command
@@ -135,6 +147,7 @@ namespace ActiveObject
 		{
 			DLOG(this->log_ << "constructor" << endl);
 		}
+
 		/**
 		* @brief Constructs MethodRequest with given command and FutureContent.
 		* @param f Invoked command
@@ -148,10 +161,6 @@ namespace ActiveObject
 			DLOG(this->log_ << "constructor" << endl);
 		}
 
-		//Scheduler przekaze tu wskaznik na servanta
-		//przy czym bedzie to juz wskaznik na konkretna klase, a nie bazowa, dzieki parametrowi w szablonie
-		//wiec command bedzie szukalo funkcji we wlasciwej klasie
-		//Servant ma swoj wskaznik na ten sam content, i wewnatrz funkcji moze ustawiac progress
 		/**
 		* @brief Implementation of Functor::execute
 		* @param servant Servant that executes the method.
@@ -185,14 +194,16 @@ namespace ActiveObject
 				throw NullCommandException();
 			}
 		}
+
 		/**
-		* @brief Says if the MethodRequest is ready.
+		* @brief Says if the MethodRequest is ready to be executed.
 		* @return whether MethodRequest is ready.
 		*/
 		virtual bool isReady()
 		{
 			return (((bool)command_)!=false && this->content_!=NULL);
 		}
+
 		/**
 		* Destructor.
 		*/
@@ -201,8 +212,15 @@ namespace ActiveObject
 			DLOG(this->log_ << "destructor" << endl);
 		}
 
-	};
-	//KARDAMON: czy po moim marudzenie, ze wywoluje metody nie-void bez pobierania rezultatu to ponizej jest potrzebne?
+	};//MethodRequest
+
+	/**
+	* Void specialization of MethodRequest. Differs in the way the result value is set.
+	* It passes context information about a specific method invocation on a Proxy, such as method parameters and code,
+	* from the Proxy to a Scheduler running in a separate thread. 
+	* @brief Implements Functor interface.
+	* @tparam Servant Type(class) of servant that executes method.
+	*/
 	template<class Servant>
 	class MethodRequest<void,Servant>:public Functor<Servant>
 	{
@@ -214,6 +232,7 @@ namespace ActiveObject
 		boost::function<void(Servant*)> command_;
 
 	public:
+
 		/**
 		* @brief Constructs MethodRequest with given command and FutureContent.
 		* @param f Invoked command
@@ -225,6 +244,7 @@ namespace ActiveObject
 		{
 			DLOG(this->log_ << "constructor" << endl);
 		}
+
 		/**
 		* @brief Constructs MethodRequest with given command and FutureContent.
 		* @param f Invoked command
@@ -272,6 +292,7 @@ namespace ActiveObject
 				throw NullCommandException();
 			}
 		}
+
 		/**
 		* @brief Says if the MethodRequest is ready.
 		* @return whether MethodRequest is ready.
@@ -280,6 +301,7 @@ namespace ActiveObject
 		{
 			return (((bool)command_)!=false && this->content_!=NULL);
 		}
+
 		/**
 		* Destructor.
 		*/
@@ -288,7 +310,7 @@ namespace ActiveObject
 			DLOG(this->log_ << "destructor" << endl);
 		}
 
-	};
+	};//MethodRequest<void>
 
 }//ActiveObject
 #endif

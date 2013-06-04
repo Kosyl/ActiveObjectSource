@@ -6,6 +6,7 @@
 * @details FutureContent contains info about the state, progress and results of method invocations which are available for client through Future.
 * All the info about method invocations are set by FutureContentCreator.
 */
+
 #ifndef _FUTURE_CONTENT_
 #define _FUTURE_CONTENT_
 
@@ -15,7 +16,6 @@
 
 namespace ActiveObject
 {
-
 	/**
 	* @brief State of the method invocation.
 	*/
@@ -27,9 +27,9 @@ namespace ActiveObject
 		EXCEPTION, /**<An exception occured by the method execution*/
 		DONE /**<Method request is done*/
 	};
+
 	/**
 	* @brief RequestCancelledException thrown when try to refer to request that is cancelled.
-	* KARDAMON: Czy to w ogóle jest teraz wykorzystywane?
 	*/
 	class RequestCancelledException: public exception
 	{
@@ -42,39 +42,51 @@ namespace ActiveObject
 			return "Request was cancelled by the user";
 		}
 	};
+
 	/**
 	* It is read by Future and written by FutureContentCreator.
 	* @brief FutureContent keeps result, progress and state of method invocation.
 	*/
 	class FutureContent: public boost::noncopyable
 	{
+
 	private:
+
 		/**
 		* Result value of method invoction.
 		*/
 		boost::any value_;
+
 		/**
 		* Exception from the method invocation.
 		*/
 		boost::exception_ptr exception_;
+
 		/**
 		* Progress of method execution.
 		*/
 		double progress_;
+
 		/**
 		* State of method invocation.
 		*/
 		volatile FutureState state_;
 
+		/**
+		* Synchronization field
+		*/
 		mutable boost::mutex mutex_;
+
 		/**
 		* To notify Future when FutureContent changes
 		*/
 		boost::condition_variable waitingFutures_;
+
 		/**
 		* Signal that notifies observers when the progress is changed.
 		*/
 		boost::signal<void(double)> notifyObservers_;
+
 		/**
 		* Logger
 		*/
@@ -83,6 +95,7 @@ namespace ActiveObject
 	public:
 
 		typedef boost::mutex::scoped_lock sLock;
+
 		/**
 		* It sets progress to 0, state to QUEUED and exception to NULL.
 		* @brief Constructor.
@@ -95,8 +108,9 @@ namespace ActiveObject
 			DLOG(log_.setColor(6));
 			DLOG(log_ << "constructor" << endl);
 		}
+
 		/**
-		* After that notifies observers.
+		* After updating the value notifies observers.
 		* @brief Sets new progress value.
 		* @param progress New progress value.
 		*/
@@ -107,6 +121,7 @@ namespace ActiveObject
 			progress_ = progress;
 			notifyObservers_(progress);
 		}
+
 		/**
 		* @brief Returns progress.
 		* @return progress
@@ -117,6 +132,7 @@ namespace ActiveObject
 			DLOG(log_ << "getProgress (" << progress_ << ")" << endl);
 			return progress_;
 		}
+
 		/**
 		* @brief Test whether the method invocation is done.
 		* @return whether the method execution is finished.
@@ -127,6 +143,7 @@ namespace ActiveObject
 			DLOG(log_ << "isDone (" << (state_==DONE?true:false) << ")" << endl);
 			return (state_==DONE?true:false);
 		}
+
 		/**
 		* @brief Test whether there is an exception in the client request.
 		* @return whether an exception occured in the client request.
@@ -135,8 +152,9 @@ namespace ActiveObject
 		{
 			sLock lock(mutex_);
 			DLOG(log_ << "hasException (" << (exception_!=NULL) << ")" << endl);
-			return exception_!=NULL;//? ciekawe czy wystarczy, trzeba jakos zrobic rzucanie
+			return exception_!=NULL;
 		}
+
 		/**
 		* @brief Returns exception of the method invocation.
 		* @return exception of the method invocation.
@@ -145,8 +163,9 @@ namespace ActiveObject
 		{
 			sLock lock(mutex_);
 			DLOG(log_ << "getException ()" << endl);
-			return exception_;//? ciekawe czy wystarczy, trzeba jakos zrobic rzucanie
+			return exception_;
 		}
+
 		/**
 		* @brief Sets exception of the method invocation.
 		* @param e Pointer to the exception.
@@ -158,6 +177,7 @@ namespace ActiveObject
 			state_=EXCEPTION;
 			exception_=e;
 		}
+
 		/**
 		* If there is no more observers of the request, it sets state to CANCELLED.
 		* @brief Cancel connection with the given connection.
@@ -177,8 +197,8 @@ namespace ActiveObject
 				state_ = CANCELLED;
 				DLOG(log_ << "cancel - brak obserwatorow, ustawiam cancel" << endl);
 			}
-			//exception_ = boost::copy_exception(new RequestCancelledException());
 		}
+
 		/**
 		* @brief Indicates whether the request is cancelled.
 		* @return whether the request is cancelled.
@@ -190,6 +210,10 @@ namespace ActiveObject
 			return (state_==CANCELLED?true:false);
 		}
 
+		/**
+		* @brief Returns the number of Futures attached to this Content
+		* @return number of Futures attatched to thic FutureContent
+		*/
 		int getNumObservers() const
 		{
 			sLock lock(mutex_);
@@ -229,6 +253,7 @@ namespace ActiveObject
 			DLOG(log_ << "getState" << endl);
 			return state_;
 		}
+
 		/**
 		* After setting a value it sets progress to 1.0, state to DONE and notifies all the observers.
 		* @brief Sets value of method request.
@@ -251,8 +276,7 @@ namespace ActiveObject
 		* @return value of the method invocation.
 		* @throw exception if FutureContent has exception.
 		*/
-		//- a kiedy CANCELLED? KARDAMON
-		virtual boost::any getValue()//powinno blokowac, az bedzie ok; na razie nie mamy wielu w¹tków, wiêc zobaczymy jak to dzia³a za jakieœ 2 miesi¹ce kiedy je w koñcu dodamy
+		virtual boost::any getValue()
 		{
 			sLock lock(mutex_);
 			DLOG(log_ << "getValue" << endl);
@@ -268,7 +292,7 @@ namespace ActiveObject
 				waitingFutures_.wait(lock);
 			}
 
-			if(exception_)
+			if(state_==CANCELLED || state_==EXCEPTION)
 			{
 				DLOG(log_ << "getValue - exception!" << endl);
 				boost::rethrow_exception(exception_);
@@ -277,6 +301,7 @@ namespace ActiveObject
 			boost::any res = value_;
 			return res;
 		}
+
 		/**
 		* @brief Destructs FutureContent.
 		*/
@@ -284,7 +309,8 @@ namespace ActiveObject
 		{
 			DLOG(log_ << "destructor" << endl);
 		}
-	};
+
+	};//FutureContent
 
 }//ActiveObject
 #endif

@@ -19,6 +19,8 @@
 
 namespace ActiveObject
 {
+	class NullPointerException: public exception{};
+
 	/**
 	* @brief Dequeues client request from ActivationQueue and makes Servant to execute them.
 	* @tparam Servant Type of servant that executes methods. 
@@ -31,28 +33,33 @@ namespace ActiveObject
 		* Pointer to the ActivationQueue Scheduler looks at.
 		*/
 		ActivationQueue<Servant>* queue_;
+
 		/**
 		* Pointer to servant which executes method.
 		*/
 		boost::shared_ptr<Servant> servant_;
 
 		/**
-		*
+		* Synchronization field
 		*/
 		mutable boost::mutex mutex_;
+
 		/**
 		* Flag that indicates whether ActivationQueue is to be destroyed.
 		* @see void stopOrder()
 		*/
 		volatile bool shouldIEnd_;
+
 		/**
 		* Logger
 		*/
 		DLOG(mutable Logger log_;)
+
 		/**
-		* Thread of Scheduler.
+		* Working thread of Scheduler.
 		*/
 		boost::thread thread_;
+
 	public:
 
 		/**
@@ -66,11 +73,13 @@ namespace ActiveObject
 			servant_(s),
 			shouldIEnd_(false)
 		{
+			if(!q || !s)throw NullPointerException();
 			DLOG(log_.setName("Scheduler"));
 			DLOG(log_.setColor(3));
 			DLOG(log_ << "constructor" << endl);
 			thread_=boost::thread(boost::bind(&Scheduler::run,this));
 		}
+
 		/**
 		* @brief Destructor.
 		*/
@@ -78,8 +87,9 @@ namespace ActiveObject
 		{
 			DLOG(log_ << "destructor" << endl);
 		}
+
 		/**
-		* Sets shouldIEnd to true and waits for its thread end.
+		* Sets shouldIEnd to true, what eventually stops Scheduler's thread
 		*/
 		void stopOrder() 
 		{ 
@@ -87,6 +97,9 @@ namespace ActiveObject
 			shouldIEnd_=true;
 		}
 
+		/**
+		* Joins the Scheduler's thread
+		*/
 		void joinThread()
 		{
 			DLOG(log_ << "stop() - joining" << endl);
@@ -94,8 +107,8 @@ namespace ActiveObject
 			DLOG(log_ << "stop() - joined" << endl);
 		}
 
-
 	private:
+
 		/**
 		* It is broken when request is NULL or shouldIEnd is set to true.
 		* @brief Dequeues method request from ActivationQueue and makes Servant execute it.
@@ -103,28 +116,27 @@ namespace ActiveObject
 		void dequeue()  
 		{
 			boost::mutex::scoped_lock lock(mutex_);
-			//DLOG(log_ << "dequeue" << endl);
+			DLOG(log_ << "dequeue" << endl);
 
 			Functor<Servant>* fun= queue_->pop(servant_);
 			if(shouldIEnd_ || fun==NULL)
 			{
-				//DLOG(log_<<"breaking dequeue"<<endl);
+				DLOG(log_<<"breaking dequeue"<<endl);
 				return;
 			}
 
 			if(fun->isReady())
 			{
-				//DLOG(log_ << "invoking request" << endl);
-				//mowimy servantowi schedulera, zeby wskazywal na ten sam content co zadanie wyjete z kolejki
+				DLOG(log_ << "invoking request" << endl);
 				servant_->setFutureContent(fun->getFutureContent());
 				fun->getFutureContent()->setState(INPROGRESS);
-				//tu wywolanie wlasciej funkcji; przechwytywanie wyjatkow jest w MethodRequest
 				fun->execute(servant_);
-
 			}
-			//else fun->getFutureContent()->setException(boost::copy_exception(new NullCommandException));
+			else if(fun->getFutureContent())fun->getFutureContent()->setException(boost::copy_exception(NullCommandException()));
+
 			delete fun;
 		}
+
 		/**
 		* As long as Scheduler exists it dequeues requests from ActivationQueue.
 		* @brief method of the Scheduler thread.
@@ -138,7 +150,7 @@ namespace ActiveObject
 			}
 			DLOG(log_ << "thread finishing..." <<endl);
 		}	
-	};
+	};//Scheduler
 
 }//ActiveObject
 #endif

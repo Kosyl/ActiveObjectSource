@@ -1,18 +1,28 @@
+/**
+* @file Example1.hpp
+* @author Michal Kosyl
+* @author Marta Kuzak
+* @details Active Object implementation.
+* @details Sample implementation of the Active Object pattern
+*/
 #ifndef _EXAMPLE1_
 #define _EXAMPLE1_
 
 #include "SimpleLog.hpp"
 #include "FutureContentCreator.hpp"
-#include <boost/function.hpp>
-#include <boost/thread.hpp>
 #include "Proxy.hpp"
 #include "Future.hpp"
 #include "MethodRequest.hpp"
+#include <boost/function.hpp>
+#include <boost/thread.hpp>
 
 using namespace std;
 
 using namespace ActiveObject;
-//implementacja przykladowego servanta, ma progress!
+
+/**
+* @brief Simple caclulator class
+*/
 class CalcServant: public FutureContentCreator
 {
 
@@ -66,7 +76,7 @@ public:
 		setProgress(0.8);
 		return a/b;
 	}
-	
+
 	double DivideDouble(double a, double b)
 	{
 		setProgress(0.2);
@@ -77,6 +87,9 @@ public:
 	}
 };
 
+/**
+* @brief Simple caclulator class. Every method is synchronized
+*/
 class SyncCalcServant: public FutureContentCreator
 {
 private:
@@ -135,8 +148,14 @@ public:
 
 };
 
-//proxy do servanta
-//mowimy, jaki typ servanta i jak jest generowany dla kazdego schedulera
+/**
+* @brief Proxy to the simple caclulator class
+* the calling template looks like this:
+* Future<ReturnType> MethodName(paramType1 p1, paramType2 p2...)
+* {
+*     return enqueue<ReturnType>(boost::bind(&ServantClass::ServantMethod,_1,p1,p2,...));
+* }
+*/
 class CalcProxy: public Proxy<CalcServant,ServantFactoryCreator>
 {
 
@@ -146,8 +165,6 @@ public:
 		Proxy(numThreads)
 	{}
 
-	//tyle kodu bedzie potrzeba na obsluge zadania jednej funkcji
-	//bardzo mozliwe ze da sie to zautomatyzowac
 	Future<int> AddInt(int a, int b)
 	{
 		return enqueue<int>(boost::bind(&CalcServant::AddInt,_1,a,b));
@@ -174,6 +191,9 @@ public:
 	}
 };
 
+/**
+* @brief Proxy to the simple synchronized caclulator class (every scheduler access the same servant instance)
+*/
 class SyncCalcProxy: public Proxy<SyncCalcServant,ServantSingletonCreator>
 {
 
@@ -183,8 +203,6 @@ public:
 		Proxy(numThreads)
 	{}
 
-	//tyle kodu bedzie potrzeba na obsluge zadania jednej funkcji
-	//bardzo mozliwe ze da sie to zautomatyzowac
 	Future<int> AddInt(int a, int b)
 	{
 		return enqueue<int>(boost::bind(&SyncCalcServant::AddInt,_1,a,b));

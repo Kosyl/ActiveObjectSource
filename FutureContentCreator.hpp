@@ -9,11 +9,11 @@
 #define _FC_CREATOR_
 
 #include "Future.hpp"
+#include "SimpleLog.hpp"
+#include "FutureContent.hpp"
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 #include <boost/exception_ptr.hpp>
-#include "SimpleLog.hpp"
-#include "FutureContent.hpp"
 
 namespace ActiveObject
 {

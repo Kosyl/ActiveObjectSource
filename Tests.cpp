@@ -1,3 +1,11 @@
+/**
+* @file Tests.cpp
+* @author Michal Kosyl
+* @author Marta Kuzak
+* @details Active Object tests.
+* @details Set of simple tests checking various scenarios of the ActiveObject pattern implementation use.
+*/
+
 #ifndef _TESTS_
 #define _TESTS_
 
@@ -13,6 +21,9 @@
 #include <boost/test/minimal.hpp>
 #include <boost/exception_ptr.hpp>
 
+/**
+* @brief custom macro redefinition allowing to use it along with the Logger class without deadlocks or race conditions
+*/
 #define CHECK(exp) {bool tmp=exp;log.lock();(tmp)? static_cast<void>(0): boost::minimal_test::report_error(#exp,__FILE__,__LINE__, BOOST_CURRENT_FUNCTION);log.unlock();}
 #define REQUIRE(exp){ bool tmp=exp;log.lock();(tmp)? static_cast<void>(0): boost::minimal_test::report_critical_error(#exp,__FILE__,__LINE__,BOOST_CURRENT_FUNCTION);log.unlock();}
 
@@ -21,6 +32,9 @@ using namespace ActiveObject;
 using namespace boost::unit_test;
 using namespace boost::unit_test_framework;
 
+/**
+* @brief AQ test helper function
+*/
 template <class T>
 void pushMR (ActivationQueue<T>* q) 
 {

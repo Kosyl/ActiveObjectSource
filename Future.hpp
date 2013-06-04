@@ -53,7 +53,7 @@ namespace ActiveObject
 		DLOG(mutable Logger log_;)
 
 		/**
-		* An empty callback, used to identify Futures observing the FutureContent
+		* An empty callback, used to identify and count Futures observing the FutureContent
 		*/
 		void dummyCallback(double x)
 		{}
@@ -61,7 +61,7 @@ namespace ActiveObject
 	public:
 
 		/**
-		* Constructor. Binds the default (empty) progress notification slot to the FutureContent
+		* Constructor. Binds the default (empty) progress notification slot to the FutureContent to keep the count correct
 		* @param target pointer to FutureContent
 		*/
 		FutureBase(boost::shared_ptr<FutureContent> target):
@@ -76,7 +76,7 @@ namespace ActiveObject
 
 		/**
 		* Copy constructor. Binds the default (empty) progress notification slot to the FutureContent.
-		* Copies the progress slot function as well.
+		* If the rhs's slot is not empty, it is copied as well.
 		*/
 		FutureBase(const FutureBase& rhs):
 			pFutureContent_(rhs.pFutureContent_)
@@ -90,7 +90,7 @@ namespace ActiveObject
 
 		/**
 		* Destructor
-		* Notifies the FutureContent to decrement the number of Observers
+		* Notifies the FutureContent to decrement the number of Observers.
 		*/
 		virtual ~FutureBase()
 		{
@@ -113,7 +113,7 @@ namespace ActiveObject
 
 		/**
 		* @brief Adds slot which is called after progress or state changes.
-		* @param fun function (or any object providing operator()(double) ) that is supposed to be the slot.
+		* @param fun function pointer (or any object providing operator()(double), e.g. boost::bind ) that is supposed to be the slot.
 		* @tparam FuncType
 		*/
 		template<typename FuncType>
@@ -139,6 +139,7 @@ namespace ActiveObject
 				throw RequestCancelledException();
 			return pFutureContent_->getProgress();
 		}
+
 		/**
 		* @return state of clients request.
 		*/
@@ -148,6 +149,7 @@ namespace ActiveObject
 				return CANCELLED;
 			return pFutureContent_->getState();
 		}
+
 		/**
 		* @brief Returns pointer to exception that happened during request execution, if any.
 		* @return exception of FutureContent
@@ -156,7 +158,7 @@ namespace ActiveObject
 		boost::exception_ptr getException() const
 		{
 			if(!pFutureContent_)
-				throw RequestCancelledException();
+				return boost::copy_exception(RequestCancelledException());
 			return pFutureContent_->getException();
 		}
 
@@ -198,7 +200,8 @@ namespace ActiveObject
 			}
 			pFutureContent_=NULL;
 		}
-	};
+
+	};//FutureBase
 
 	/**
 	* @details It has a pointer to FutureContent which keeps result (derived from the base), progress and state of client request.
@@ -234,7 +237,7 @@ namespace ActiveObject
 		/**
 		* @brief Destructor
 		*/
-		~Future()
+		virtual ~Future()
 		{
 		}
 
@@ -261,6 +264,7 @@ namespace ActiveObject
 
 		/**
 		* Assigns other to this Future and returns a reference to this Future.
+		* Takes care of updating FutureContents
 		* @brief Assignment operator.
 		*/
 		Future<T>& operator=(const Future& rhs)
@@ -276,8 +280,7 @@ namespace ActiveObject
 	};//Future<T>
 
 	/**
-	* Void-type specialization of Future.
-	*
+	* Void-type specialization of Future. Behaves similarly to Future<bool>, but returns true, when the invocation was successfully completed, and false otherwise.
 	* @brief Future allows a client to obtain the result, progress and state of method invocation.
 	*/
 	template<>
@@ -345,7 +348,8 @@ namespace ActiveObject
 			pFutureContent_=rhs.pFutureContent_;
 			return *this;
 		}
-	};
+
+	};//Future<void>
 
 }//ActiveObject
 #endif

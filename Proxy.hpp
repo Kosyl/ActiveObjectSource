@@ -18,43 +18,44 @@
 #include <boost/function.hpp>
 #include <vector>
 
-//Wybacz zmianê nazwy wyj¹tku. 
 /**
 * thrown when resfreshPeriod parameter is non-positive.
 * refreshPeriod indicates how often result of guard method is checked. 
 */
-class NonPositivePeriodException: public exception, public boost::exception
+class NonPositivePeriodException: public exception
 {
 public:
-    NonPositivePeriodException(){}
+	NonPositivePeriodException(){}
 
-    virtual const char* what()
-    {
+	virtual const char* what()
+	{
 		return "Refresh period has to be greater than 0!";
-    }
+	}
 };
+
 namespace ActiveObject
 {
-    using namespace std;
-    
-    //daje metode getServant ktora dziala jak fabryka
-    /**
-	 * ServantFactoryCreator allows to create every time different Servant.
-     * @brief Servant Factory.
-     * @tparam T Type of servant to create.
-	 * @see ServantPrototypeCreator
-	 * @see ServantSingletonCreator
-     */
-    template<typename T>
-    class ServantFactoryCreator
-    {
-	
-    public:
+	using namespace std;
+
+	//daje metode getServant ktora dziala jak fabryka
+	/**
+	* ServantFactoryCreator allows to create every time different Servant.
+	* @brief Servant Factory.
+	* @tparam T Type of servant to create.
+	* @see ServantPrototypeCreator
+	* @see ServantSingletonCreator
+	*/
+	template<typename T>
+	class ServantFactoryCreator
+	{
+
+	public:
 		/**
 		* @brief Constructor
 		*/
 		ServantFactoryCreator()
 		{}
+
 		/**
 		* @brief Returns pointer to the new created Servant.
 		* @return pointer to the created Servant.
@@ -63,34 +64,35 @@ namespace ActiveObject
 		{
 			return boost::shared_ptr<T>(new T);
 		}
-	
+
 		/**
 		* @brief Destructor
 		*/
 		virtual ~ServantFactoryCreator(){}
-    };
-    
-    //jw prototyp
-    /**
-	 * In this variant Servants are created by cloning prototypical instance of Servant.
-     * @brief Servant Prototype
-     * @tparam T Type of servant prototype.
-	 * @see ServantFactoryCreator
-	 * @see ServantSingletonCreator
-     */
-    template<typename T>
-    class ServantPrototypeCreator
-    {
-	
-    public:
+	};
+
+	//jw prototyp
+	/**
+	* In this variant Servants are created by cloning prototypical instance of Servant.
+	* @brief Servant Prototype
+	* @tparam T Type of servant prototype.
+	* @see ServantFactoryCreator
+	* @see ServantSingletonCreator
+	*/
+	template<typename T>
+	class ServantPrototypeCreator
+	{
+
+	public:
 		/**
 		* Sets prototype. 
 		* @brief Constructor.
 		* @param pObj Pointer to Servant which is to be prototype
 		*/
 		ServantPrototypeCreator(T* pObj = 0)
-		:pPrototype_(pObj)
+			:pPrototype_(pObj)
 		{}
+
 		/**
 		* @return Pointer to created Servant
 		*/
@@ -98,6 +100,7 @@ namespace ActiveObject
 		{
 			return pPrototype_ ? pPrototype_ : 0;
 		}
+
 		/**
 		* @return Pointer to prototype.
 		*/
@@ -105,6 +108,7 @@ namespace ActiveObject
 		{
 			return pPrototype_;
 		}
+
 		/**
 		* Sets prototype with given value
 		* @param pObj Pointer to Servant that is to be prototype.
@@ -113,39 +117,40 @@ namespace ActiveObject
 		{ 
 			pPrototype_ = pObj;
 		}
-	
+
 	private:
 		/**
 		* Pointer to prototype
 		*/
 		boost::shared_ptr<T> pPrototype_;
+
 		/**
 		* Destructor.
 		*/
 		virtual ~ServantPrototypeCreator()
-		{
-	    }
-    };
-    
-    //jw singleton
+		{}
+	};
+
+	//jw singleton
 	/**
-	 * In this solution only one Servant can exists. 
-     * @brief Servant Singleton
-     * @tparam T Type of servant to create.
-	 * @see ServantFactoryCreator
-	 * @see ServantPrototypeCreator
-     */
-    template<typename T>
-    class ServantSingletonCreator
-    {
-	
-    public:
+	* In this solution only one Servant can exists. 
+	* @brief Servant Singleton
+	* @tparam T Type of servant to create.
+	* @see ServantFactoryCreator
+	* @see ServantPrototypeCreator
+	*/
+	template<typename T>
+	class ServantSingletonCreator
+	{
+
+	public:
 		/** 
 		* Constructs ServantSingletonCreator and creates new (and the only) instance of Servant.
 		*/
 		ServantSingletonCreator()
-		:pInstance_(new T)
+			:pInstance_(new T)
 		{}
+
 		/**
 		* @return Pointer to instance of Servant.
 		*/
@@ -153,20 +158,22 @@ namespace ActiveObject
 		{
 			return pInstance_;
 		}
+
 		/**
 		* Destruct ServantSingletonCreator
 		*/
 		virtual ~ServantSingletonCreator(){}
-    private:
+
+	private:
+
 		/**
 		* Pointer to object of Servant.
 		*/
 		boost::shared_ptr<T> pInstance_;
-	
-    };
-    
-    //parametr: typ servanta i wytyczna jego tworzenia
-    //przyklad w pliku Example1.hpp
+	};
+
+	//parametr: typ servanta i wytyczna jego tworzenia
+	//przyklad w pliku Example1.hpp
 	/**
 	* @brief Proxy provides client with ability to invoke its method on Active Object. 
 	* @details Using Future returned by Proxy client can 
@@ -178,33 +185,37 @@ namespace ActiveObject
 	* @see ServantPrototypeCreator
 	* @see ServantSingletonCreator 
 	*/
-    template<class Servant, template <class U> class ServantCreationPolicy>
-    class Proxy
-    {
-    protected:
+	template<class Servant, template <class U> class ServantCreationPolicy>
+	class Proxy
+	{
+	protected:
 		/**
 		* Vector of Pointers to Schedulers- parametrized by given Servant type. 
 		*/
 		std::vector<Scheduler<Servant>* > schedulers_;
+
 		/**
 		* Pointer to queue of client requests.
 		*/
 		ActivationQueue<Servant>* AQ_;
+
 		/**
 		* Thread-safe logger
 		*/
 		DLOG(mutable Logger log_;)
+
 		/**
 		* Policy of Servant Creation.
 		*/
 		ServantCreationPolicy<Servant> servantCreator_;
+
 		/**
 		* @brief Constructs Proxy with given number of threads.
-		* @details In every thread run one Scheduler.
-		* @param numThreads- number of threads and Schedulers as well.
+		* @details In every thread runs one Scheduler.
+		* @param numThreads number of threads (so Schedulers as well) associated to this Proxy.
 		*/
 		Proxy(unsigned int numThreads=1):
-		AQ_(new ActivationQueue<Servant>())
+			AQ_(new ActivationQueue<Servant>())
 		{
 			DLOG(log_.setName("Proxy"));
 			DLOG(log_.setColor(2));
@@ -214,8 +225,9 @@ namespace ActiveObject
 				//korzystamy z wytycznej do wygenerowania wskaznika do servanta
 				boost::shared_ptr<Servant> serv = servantCreator_.getServant();
 				schedulers_.push_back(new Scheduler<Servant>(AQ_,serv));
-				}
+			}
 		}
+
 		/**
 		* @brief Constructs Proxy with given number of threads and refreshPeriod.
 		* @details In every thread run one Scheduler.
@@ -223,7 +235,6 @@ namespace ActiveObject
 		* @param refreshPeriod period of guard-check [ms]
 		* @throw NonPositivePeriodException when refreshPeriod is not positive.
 		*/
-		//KARDAMON: czy to mo¿liwe, skoro mamy unsigned longa?
 		Proxy(unsigned int numThreads, unsigned long refreshPeriod)
 		{
 			DLOG(log_.setName("Proxy"));
@@ -235,7 +246,7 @@ namespace ActiveObject
 			}
 			else
 				throw NonPositivePeriodException();
-	    
+
 			for(unsigned int i=0;i<numThreads;++i)
 			{
 				//korzystamy z wytycznej do wygenerowania wskaznika do servanta
@@ -243,17 +254,18 @@ namespace ActiveObject
 				schedulers_.push_back(new Scheduler<Servant>(AQ_,serv));
 			}
 		}
+
 		/**
 		* Stops the ActivationQueue and waits for all Schedulers join. After that it deletes Schedulers, then ActivatioQueue and in the end itself.
 		*/
 		virtual ~Proxy()
 		{
 			DLOG(log_<<"destructor"<<endl);
-	    
+
 			for_each( schedulers_.begin(), schedulers_.end(), stopScheduler);
 			AQ_->End();
 			for_each( schedulers_.begin(), schedulers_.end(), joinScheduler);
-	    
+
 			DLOG(log_<<"deleting schedulers"<<endl);
 			for(unsigned int i=0;i<schedulers_.size();++i)
 			{
@@ -261,6 +273,7 @@ namespace ActiveObject
 			}
 			delete AQ_;
 		}
+
 		/**
 		* Stops all Schedulers one by one.
 		*/
@@ -274,6 +287,7 @@ namespace ActiveObject
 				i->stopOrder();
 			}
 		} stopScheduler;
+
 		/**
 		* Joins all Schedulers one by one.
 		*/
@@ -304,6 +318,7 @@ namespace ActiveObject
 			AQ_->push(request);
 			return fut;
 		}
+
 		/**
 		* @brief Creates Future, its FutureContent and MethodRequest. MethodRequest is pushed into the queue. 
 		* @param command boost::function object which keeps address to clients method invokation. Finally it returns created Future.
@@ -321,7 +336,8 @@ namespace ActiveObject
 			AQ_->push(request);
 			return fut;
 		}
-    };
-    
+
+	};//Proxy
+
 }//ActiveObject
 #endif
