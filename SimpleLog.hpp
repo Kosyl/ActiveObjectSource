@@ -323,7 +323,7 @@ namespace ActiveObject
 	/**
 	* @brief Logger's friend << operator specialization for std::endl
 	* @param o logger instance
-	* @param t object to be written to cout
+	* @param f object to be written to cout
 	*/
 	Logger& operator<<(Logger& o, std::ostream& (*f)(std::ostream&))
 	{
