@@ -18,20 +18,6 @@
 #include <boost/function.hpp>
 #include <vector>
 
-/**
-* thrown when resfreshPeriod parameter is non-positive.
-* refreshPeriod indicates how often result of guard method is checked. 
-*/
-class NonPositivePeriodException: public exception
-{
-public:
-	NonPositivePeriodException(){}
-
-	virtual const char* what()
-	{
-		return "Refresh period has to be greater than 0!";
-	}
-};
 
 namespace ActiveObject
 {

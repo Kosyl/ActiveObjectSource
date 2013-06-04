@@ -133,7 +133,7 @@ void testFuture()
 	{
 		f.getValue();
 	}
-	catch (NonPositivePeriodException& e)
+	catch(NonPositivePeriodException& e)
 	{
 		REQUIRE(string(e.what())=="Refresh period has to be greater than 0!");
 	}

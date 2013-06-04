@@ -3,6 +3,7 @@ import platform, shutil
 e = Environment()
 
 debug = ARGUMENTS.get('debug', 0)
+test= ARGUMENTS.get('test', 0)
 
 if(platform.system() == "Linux"):
    print "platform:linux"
@@ -21,13 +22,19 @@ elif(platform.system() == "Windows"):
    e.Append( CCFLAGS = ['-D_WINPLATFORM'] )
    if int(debug):
 	e.Append( CPPFLAGS = ' /EHsc /D "WIN32" /D "_WIN32_WINNT#0x501" /D "_CONSOLE" /MDd' )
-	e.Append(CCFLAGS = '-D_DEBUG
+	e.Append(CCFLAGS = '-D_DEBUG')
    else:
 	e.Append( CPPFLAGS = ' /EHsc /D "WIN32" /D "_WIN32_WINNT#0x501" /D "_CONSOLE" /MD' )
 else:
    print platform.system() + " not supported"
 
 if int(debug):
-	e.Program(target = 'ActObjDeb', source = 'Tests.cpp')
+	if int(test):
+		e.Program(target = 'TestsDeb', source = 'Tests.cpp')
+	else:
+		e.Program(target = 'SimpleAppDeb', source = 'SimpleApp.cpp')
 else: 
-	e.Program(target = 'ActObj', source = 'Tests.cpp')
+	if int(test):
+		e.Program(target = 'Tests', source = 'Tests.cpp')
+	else:
+		e.Program(target = 'SimpleApp', source = 'SimpleApp.cpp')
