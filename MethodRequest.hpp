@@ -17,7 +17,7 @@ namespace ActiveObject
 
 	using namespace std;
 	/**
-	* @brief NullCommandException thrown when try to refer to method that is not ready. {tak wynika z kodu, KARDAMON!)
+	* @brief NullCommandException thrown when try to refer to method that is not ready.
 	*/
 	class NullCommandException: public exception{};
 

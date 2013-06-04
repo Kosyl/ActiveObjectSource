@@ -179,7 +179,7 @@ namespace ActiveObject
 	* @details Using Future returned by Proxy client can 
 	* check progress, state and- after the method execution is finished- get result of the method.
 	* @tparam Servant Type of Servant
-	* @tparam ServantCreationPolicy Type of Policy //?? KARDAMON- jak to po angielsku jest?
+	* @tparam ServantCreationPolicy Type of Policy 
 	* @tparam U Param of Policy
 	* @see ServantFactoryCreator
 	* @see ServantPrototypeCreator
