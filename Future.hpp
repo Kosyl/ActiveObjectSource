@@ -281,7 +281,7 @@ namespace ActiveObject
 
 	/**
 	* Void-type specialization of Future. Behaves similarly to Future<bool>, but returns true, when the invocation was successfully completed, and false otherwise.
-	* @brief Future allows a client to obtain the result, progress and state of method invocation.
+	* @brief Future allows a client to obtain the progress and state of method invocation.
 	*/
 	template<>
 	class Future<void>: public FutureBase
